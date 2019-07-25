@@ -1,0 +1,7 @@
+@startmindmap
+* QuickQuake
+** Build System
+***_ initial build ready 25.7.19
+** Quake Port
+** Qt Quick 2 Integration
+@endmindmap
