@@ -4,7 +4,10 @@
 
 TEMPLATE = app
 
-CONFIG += qt
+HEADERS = $$files(*.hpp)
+SOURCES = $$files(*.cpp)
+RESOURCES = gui.qrc
+
 QT += qml quick
 
 CONFIG += precompile_header
@@ -13,8 +16,5 @@ PRECOMPILED_HEADER  = "../precompile.hpp"
 *-g++* {
   POST_TARGETDEPS += ../lib/libquake.a
 }
-
-HEADERS = $$files(*.hpp)
-SOURCES = $$files(*.cpp)
 
 LIBS += -L ../lib -lquake
