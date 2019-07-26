@@ -1,7 +1,10 @@
 @startmindmap
 * QuickQuake
 ** Build System
-***_ initial build ready 25.7.19
+***_ initial commit 25.7.
+***_ qmake and initial build, 26.7.
 ** Quake Port
+***_ quake submodule added, 26.7
+***_ files: compile
 ** Qt Quick 2 Integration
 @endmindmap
