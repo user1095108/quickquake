@@ -8,4 +8,5 @@
 ***_ files: mathlib.c
 ** Qt Quick 2 Integration
 ***_ .qml resources, 26.7.
+***_ qquake placeholder added, 27.7.
 @endmindmap
