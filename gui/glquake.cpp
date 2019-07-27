@@ -1,5 +1,7 @@
+#include "glquake.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
-GLQuake::GLQuake(QObject* const parent) : QQuickItem(parent)
+GLQuake::GLQuake(QQuickItem* const parent) : QQuickItem(parent)
 {
   setFlag(ItemHasContents);
 }
