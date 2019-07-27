@@ -7,7 +7,7 @@ CONFIG += static
 
 QMAKE_CFLAGS = -Ofast -no-pie -fno-plt -fno-stack-protector
 
-TARGET = quake
+TARGET = glquake
 
 DESTDIR = ../lib
 

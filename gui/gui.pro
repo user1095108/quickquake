@@ -14,7 +14,7 @@ CONFIG += precompile_header
 PRECOMPILED_HEADER  = "../precompile.hpp"
 
 *-g++* {
-  POST_TARGETDEPS += ../lib/libquake.a
+  POST_TARGETDEPS += ../lib/libglquake.a
 }
 
-LIBS += -L ../lib -lquake
+LIBS += -L ../lib -lglquake
