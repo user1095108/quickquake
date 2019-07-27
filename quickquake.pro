@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS = quake\
+SUBDIRS = glquake\
           gui
 
-gui.depends = quake
+gui.depends = glquake
