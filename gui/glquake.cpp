@@ -102,7 +102,7 @@ public slots:
   }
 
 signals:
-  void textureReady(uint to, QSize const& size);
+  void textureReady(uint id, QSize const& size);
 };
 
 class TextureNode : public QObject, public QSGSimpleTextureNode
