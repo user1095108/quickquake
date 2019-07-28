@@ -73,9 +73,9 @@ public slots:
     //context_->functions()->glFlush();
     //renderFbo_->bindDefault();
 
-    emit textureReady(renderFbo_->texture(), size_);
-
     renderFbo_.swap(displayFbo_);
+
+    emit textureReady(displayFbo_->texture(), size_);
   }
 
   void shutdown()
