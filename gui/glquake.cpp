@@ -24,7 +24,7 @@ public:
     //qDebug() << "setSize" << size;
     QMutexLocker m(&mutex_);
 
-    if (!size.isEmpty() && (size != size_))
+    if (!size.isEmpty())
     {
       size_ = size;
     }
@@ -55,6 +55,7 @@ public slots:
 
     // we render a quake frame
 
+    // some test code to see if fbo rendering is ok
     {
       QOpenGLPaintDevice opd(size_);
       QPainter painter(&opd);
@@ -65,8 +66,7 @@ public slots:
       painter.drawLine(0, 0, size_.width(), size_.height());
     }
 
-    context_->functions()->glFlush();
-
+    //context_->functions()->glFlush();
     //renderFbo_->bindDefault();
 
     emit textureReady(renderFbo_->texture(), size_);
@@ -176,16 +176,19 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
 
     return nullptr;
   }
-  else if (!renderThread_->context_)
+  else if (!renderThread_->isRunning())
   {
     auto const w(window());
+    Q_ASSERT(w);
 
     auto const ccontext(w->openglContext());
     Q_ASSERT(ccontext);
 
+    // this is done to safely share context resources
     ccontext->doneCurrent();
 
     auto f(ccontext->format());
+    // quake needs OpenGL compatibility profile
     f.setProfile(QSurfaceFormat::CompatibilityProfile);
 
     renderThread_->context_.reset(new QOpenGLContext);
@@ -203,9 +206,9 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       renderThread_, &GLQuakeRenderThread::shutdown, Qt::DirectConnection);
 
-    renderThread_->start();
-
     ccontext->makeCurrent(w);
+
+    renderThread_->start();
   }
 
   auto node(static_cast<TextureNode*>(n));
