@@ -151,6 +151,17 @@ GLQuake::~GLQuake()
 {
   renderThread_->shutdown();
   renderThread_->wait();
+
+  auto const w(window());
+
+  if (w)
+  {
+    auto const ccontext(w->openglContext());
+
+    if (ccontext)
+    {
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -203,12 +214,14 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     renderThread_->surface_->create();
     Q_ASSERT(renderThread_->surface_->isValid());
 
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
-      renderThread_, &GLQuakeRenderThread::shutdown, Qt::DirectConnection);
-
     ccontext->makeCurrent(w);
 
     renderThread_->start();
+
+    connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
+      renderThread_, &GLQuakeRenderThread::shutdown, Qt::DirectConnection);
+    connect(w, &QQuickWindow::sceneGraphInvalidated,
+      renderThread_, &GLQuakeRenderThread::shutdown, Qt::DirectConnection);
   }
 
   auto node(static_cast<TextureNode*>(n));
