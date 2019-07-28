@@ -219,6 +219,8 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
 
     connect(renderThread_, &GLQuakeRenderThread::textureReady,
       node, &TextureNode::updateNode, Qt::QueuedConnection);
+
+    // establish the endless rendering loop
     connect(node, &TextureNode::nodeUpdated,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
 
