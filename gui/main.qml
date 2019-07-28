@@ -5,7 +5,7 @@ import Quake 1.0
 Rectangle {
   id: rootitem
 
-  color: "black"
+  color: "green"
 
   // quake item
   GLQuake {
@@ -15,6 +15,7 @@ Rectangle {
     x: .5 * (parent.width - width)
     y: .5 * (parent.height - height)
 
+//  rotation: 30
 //  color: "yellow"
   }
 }
