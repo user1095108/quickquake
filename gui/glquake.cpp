@@ -24,7 +24,11 @@ public:
     //qDebug() << "setSize" << size;
     QMutexLocker m(&mutex_);
 
-    if (!size.isEmpty())
+    if (size.isEmpty())
+    {
+      shutdown();
+    }
+    else
     {
       size_ = size;
     }
@@ -98,7 +102,7 @@ public slots:
   }
 
 signals:
-  void textureReady(int to, QSize const& size);
+  void textureReady(uint to, QSize const& size);
 };
 
 class TextureNode : public QObject, public QSGSimpleTextureNode
@@ -112,19 +116,17 @@ public:
   explicit TextureNode(QQuickItem* const item) :
     item_(item)
   {
-//  setFlag(QSGNode::OwnsMaterial);
     setFiltering(QSGTexture::Nearest);
+    setOwnsTexture(true);
 
-    texture_.reset(item_->window()->createTextureFromId(0, QSize(1, 1)));
-    setTexture(texture_.get());
+    setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
   }
 
 public slots:
-  void updateNode(int const id, QSize const& size)
+  void updateNode(uint const id, QSize const& size)
   {
     //qDebug() << "updateNode";
-    texture_.reset(item_->window()->createTextureFromId(id, size));
-    setTexture(texture_.get());
+    setTexture(item_->window()->createTextureFromId(id, size));
 
     item_->update();
 
