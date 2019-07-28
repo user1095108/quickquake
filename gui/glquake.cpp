@@ -33,12 +33,11 @@ public:
 public slots:
   void render()
   {
+    //qDebug() << "render" << renderFbo_.get();
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
     QMutexLocker m(&mutex_);
-
-    //qDebug() << "render" << renderFbo_.get();
 
     if (!renderFbo_ || (renderFbo_->size() != size_))
     {
@@ -66,6 +65,7 @@ public slots:
       painter.drawLine(0, 0, size_.width(), size_.height());
     }
 
+    // these calls are probably unnecessary, but can be found in the Qt example
     //context_->functions()->glFlush();
     //renderFbo_->bindDefault();
 
@@ -171,6 +171,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   if (br.isEmpty())
   {
     renderThread_->shutdown();
+    renderThread_->wait();
 
     delete n;
 
