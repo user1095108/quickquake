@@ -4,6 +4,9 @@
 
 class GLQuake : public QQuickItem
 {
+  QScopedPointer<QOpenGLContext> context_;
+  QScopedPointer<QOffscreenSurface> surface_;
+
 public:
   explicit GLQuake(QQuickItem* = nullptr);
 

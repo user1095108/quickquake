@@ -1,10 +1,15 @@
+#include "glquake.hpp"
+
 int main(int argc, char* argv[])
 {
   QGuiApplication app(argc, argv);
 
+  qmlRegisterType<GLQuake>("Quake", 1, 0, "GLQuake");
+
   QQuickView view;
 
-  view.connect(view.engine(), &QQmlEngine::quit, &app, &QCoreApplication::quit);
+  view.setPersistentOpenGLContext(true);
+  view.setPersistentSceneGraph(true);
 
   view.setResizeMode(QQuickView::SizeRootObjectToView);
   view.resize(640, 480);
