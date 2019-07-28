@@ -151,17 +151,6 @@ GLQuake::~GLQuake()
 {
   renderThread_->shutdown();
   renderThread_->wait();
-
-  auto const w(window());
-
-  if (w)
-  {
-    auto const ccontext(w->openglContext());
-
-    if (ccontext)
-    {
-    }
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
