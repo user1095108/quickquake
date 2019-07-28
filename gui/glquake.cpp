@@ -110,7 +110,6 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
   Q_OBJECT
 
   QQuickItem* item_;
-  QScopedPointer<QSGTexture> texture_;
 
 public:
   explicit TextureNode(QQuickItem* const item) :
