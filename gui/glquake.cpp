@@ -166,7 +166,17 @@ void GLQuake::geometryChanged(QRectF const& newGeometry,
 QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   QQuickItem::UpdatePaintNodeData*)
 {
-  if (!renderThread_->context_)
+  auto const br(boundingRect());
+
+  if (br.isEmpty())
+  {
+    renderThread_->shutdown();
+
+    delete n;
+
+    return nullptr;
+  }
+  else if (!renderThread_->context_)
   {
     auto const w(window());
 
@@ -212,7 +222,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     QMetaObject::invokeMethod(renderThread_, "render", Qt::QueuedConnection);
   }
 
-  node->setRect(boundingRect());
+  node->setRect(br);
 
   return node;
 }
