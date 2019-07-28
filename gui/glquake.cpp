@@ -171,13 +171,12 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   if (br.isEmpty())
   {
     renderThread_->shutdown();
-    renderThread_->wait();
 
     delete n;
 
     return nullptr;
   }
-  else if (!renderThread_->isRunning())
+  else if (!renderThread_->context_)
   {
     auto const w(window());
     Q_ASSERT(w);
