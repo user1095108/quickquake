@@ -117,6 +117,7 @@ public:
     item_(item)
   {
     setFiltering(QSGTexture::Nearest);
+
     setOwnsTexture(true);
 
     setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
