@@ -60,6 +60,9 @@ public slots:
       QPainter painter(&opd);
 
       painter.fillRect(0, 0, size_.width(), size_.height(), Qt::yellow);
+
+      painter.setPen(Qt::red);
+      painter.drawLine(0, 0, size_.width(), size_.height());
     }
 
     context_->functions()->glFlush();
@@ -103,13 +106,13 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
   Q_OBJECT
 
   QQuickItem* item_;
-
   QScopedPointer<QSGTexture> texture_;
 
 public:
   explicit TextureNode(QQuickItem* const item) :
     item_(item)
   {
+//  setFlag(QSGNode::OwnsMaterial);
     setFiltering(QSGTexture::Nearest);
 
     texture_.reset(item_->window()->createTextureFromId(0, QSize(1, 1)));
@@ -119,10 +122,9 @@ public:
 public slots:
   void updateNode(int const id, QSize const& size)
   {
+    //qDebug() << "updateNode";
     texture_.reset(item_->window()->createTextureFromId(id, size));
     setTexture(texture_.get());
-
-//  markDirty(DirtyMaterial);
 
     item_->update();
 
