@@ -1,5 +1,15 @@
 #include "glquake.hpp"
 
+// quake vars
+extern "C"
+{
+  void Sys_InitParms(int argc, char **argv);
+  void Sys_RenderFrame();
+
+  int scr_width;
+  int scr_height;
+}
+
 class GLQuakeRenderThread : public QThread
 {
   friend class GLQuake;
@@ -16,6 +26,8 @@ class GLQuakeRenderThread : public QThread
 
   QSize size_;
 
+  bool inited_{};
+
 public:
   using QThread::QThread;
 
@@ -24,11 +36,7 @@ public:
     //qDebug() << "setSize" << size;
     QMutexLocker m(&mutex_);
 
-    if (size.isEmpty())
-    {
-      shutdown();
-    }
-    else
+    if (!size.isEmpty())
     {
       size_ = size;
     }
@@ -43,6 +51,27 @@ public slots:
 
     QMutexLocker m(&mutex_);
 
+    if (!inited_)
+    {
+      inited_ = true;
+
+      auto sl(QCoreApplication::arguments());
+
+      QScopedArrayPointer<QByteArray> bal(new QByteArray[sl.size()]);
+      QScopedArrayPointer<char*> argv(new char*[sl.size()]);
+
+      for (std::size_t i{}, e(sl.size()); i != e; ++i)
+      {
+        bal[i] = sl[i].toUtf8();
+        argv[i] = bal[i].data();
+      }
+
+      scr_width = size_.width();
+      scr_height = size_.height();
+
+      Sys_InitParms(sl.size(), argv.data());
+    }
+
     if (!renderFbo_ || (renderFbo_->size() != size_))
     {
       QOpenGLFramebufferObjectFormat format;
@@ -50,6 +79,9 @@ public slots:
 
       renderFbo_.reset(new QOpenGLFramebufferObject(size_, format));
       displayFbo_.reset(new QOpenGLFramebufferObject(size_, format));
+
+      scr_width = size_.width();
+      scr_height = size_.height();
     }
 
     renderFbo_->bind();
@@ -57,7 +89,9 @@ public slots:
     context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
     // we render a quake frame
+    Sys_RenderFrame();
 
+/*
     // some test code to see if fbo rendering is ok
     {
       QOpenGLPaintDevice opd(size_);
@@ -68,6 +102,7 @@ public slots:
       painter.setPen(Qt::red);
       painter.drawLine(0, 0, size_.width(), size_.height());
     }
+*/
 
     // these calls are probably unnecessary, but can be found in the Qt example
     //context_->functions()->glFlush();
@@ -95,6 +130,8 @@ public slots:
 
         context_.reset();
         surface_.reset();
+
+        inited_ = false;
       }
 
       exit();
@@ -116,6 +153,7 @@ public:
     item_(item)
   {
     setFiltering(QSGTexture::Nearest);
+    setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 
     setOwnsTexture(true);
 
