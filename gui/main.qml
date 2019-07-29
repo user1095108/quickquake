@@ -12,13 +12,13 @@ Rectangle {
   color: "green"
 
   ColumnLayout {
-    height: parent.height - 10
+    height: parent.height
 
     Slider{
       id: rotslider
 
       Layout.alignment: Qt.AlignCenter
-      Layout.preferredHeight: rootitem.height / 3 - 5 * spacing
+      Layout.preferredHeight: parent.height / 3
 
       orientation: Qt.Vertical
 
@@ -34,7 +34,7 @@ Rectangle {
       id: xslider
 
       Layout.alignment: Qt.AlignCenter
-      Layout.preferredHeight: parent.height / 3 - 2 * spacing
+      Layout.preferredHeight: parent.height / 3
 
       orientation: Qt.Vertical
 
@@ -50,7 +50,7 @@ Rectangle {
       id: yslider
 
       Layout.alignment: Qt.AlignCenter
-      Layout.preferredHeight: parent.height / 3 - 2 * spacing
+      Layout.fillHeight: true
 
       orientation: Qt.Vertical
 
