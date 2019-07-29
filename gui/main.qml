@@ -12,10 +12,12 @@ Rectangle {
     width: .75 * parent.width
     height: .75 * parent.height
 
+//  width: 640
+//  height: 480
+
     x: .5 * (parent.width - width)
     y: .5 * (parent.height - height)
 
-//  rotation: 30
-//  color: "yellow"
+//  rotation: 15
   }
 }

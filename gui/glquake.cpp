@@ -45,11 +45,28 @@ public:
 public slots:
   void render()
   {
-    //qDebug() << "render" << renderFbo_.get();
+//  qDebug() << "render" << renderFbo_.get();
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
     QMutexLocker m(&mutex_);
+
+    if (!renderFbo_ || (renderFbo_->size() != size_))
+    {
+      QOpenGLFramebufferObjectFormat format;
+      format.setAttachment(QOpenGLFramebufferObject::Depth);
+
+      renderFbo_.reset(new QOpenGLFramebufferObject(size_, format));
+      displayFbo_.reset(new QOpenGLFramebufferObject(size_, format));
+
+      scr_width = size_.width();
+      scr_height = size_.height();
+    }
+
+    Q_ASSERT(renderFbo_->isValid());
+    renderFbo_->bind();
+
+//  context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
     if (!inited_)
     {
@@ -66,33 +83,15 @@ public slots:
         argv[i] = bal[i].data();
       }
 
-      scr_width = size_.width();
-      scr_height = size_.height();
-
       Sys_InitParms(sl.size(), argv.data());
     }
-
-    if (!renderFbo_ || (renderFbo_->size() != size_))
-    {
-      QOpenGLFramebufferObjectFormat format;
-      format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-      renderFbo_.reset(new QOpenGLFramebufferObject(size_, format));
-      displayFbo_.reset(new QOpenGLFramebufferObject(size_, format));
-
-      scr_width = size_.width();
-      scr_height = size_.height();
-    }
-
-    renderFbo_->bind();
-
-    context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
     // we render a quake frame
     Sys_RenderFrame();
 
-/*
     // some test code to see if fbo rendering is ok
+
+/*
     {
       QOpenGLPaintDevice opd(size_);
       QPainter painter(&opd);
@@ -108,9 +107,10 @@ public slots:
     //context_->functions()->glFlush();
     //renderFbo_->bindDefault();
 
-    renderFbo_.swap(displayFbo_);
+    emit textureReady(renderFbo_.get());
 
-    emit textureReady(displayFbo_->texture(), size_);
+    renderFbo_.swap(displayFbo_);
+    //usleep(5000);
   }
 
   void shutdown()
@@ -130,8 +130,6 @@ public slots:
 
         context_.reset();
         surface_.reset();
-
-        inited_ = false;
       }
 
       exit();
@@ -139,7 +137,7 @@ public slots:
   }
 
 signals:
-  void textureReady(uint id, QSize const& size);
+  void textureReady(QOpenGLFramebufferObject*);
 };
 
 class TextureNode : public QObject, public QSGSimpleTextureNode
@@ -147,6 +145,8 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
   Q_OBJECT
 
   QQuickItem* item_;
+
+//QScopedPointer<QOpenGLFramebufferObject> fbo_;
 
 public:
   explicit TextureNode(QQuickItem* const item) :
@@ -161,10 +161,11 @@ public:
   }
 
 public slots:
-  void updateNode(uint const id, QSize const& size)
+  void updateNode(QOpenGLFramebufferObject* const fbo)
   {
-    //qDebug() << "updateNode";
-    setTexture(item_->window()->createTextureFromId(id, size));
+    //qDebug() << "updateNode" << fbo;
+    setTexture(item_->window()->createTextureFromId(fbo->texture(),
+      fbo->size(), QQuickWindow::TextureIsOpaque));
 
     item_->update();
 
@@ -263,6 +264,8 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
       node, &TextureNode::updateNode, Qt::QueuedConnection);
 
     // establish the endless rendering loop
+//  connect(window(), &QQuickWindow::afterRendering,
+//    renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
     connect(node, &TextureNode::nodeUpdated,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
 
