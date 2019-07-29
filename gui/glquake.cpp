@@ -21,8 +21,9 @@ class GLQuakeRenderThread : public QThread
   QScopedPointer<QOffscreenSurface> surface_;
   QScopedPointer<QOpenGLContext> context_;
 
-  QScopedPointer<QOpenGLFramebufferObject> renderFbo_;
-  QScopedPointer<QOpenGLFramebufferObject> displayFbo_;
+  QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
+
+  unsigned i{};
 
   QSize size_;
 
@@ -45,7 +46,7 @@ public:
 public slots:
   void render()
   {
-    //qDebug() << "render" << renderFbo_.get();
+    //qDebug() << "render" << fbo_[i].get();
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
@@ -54,13 +55,13 @@ public slots:
     scr_width = size_.width();
     scr_height = size_.height();
 
-    if (!renderFbo_ || (renderFbo_->size() != size_))
+    if (!fbo_[0] || (fbo_[0]->size() != size_))
     {
       QOpenGLFramebufferObjectFormat format;
       format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-      renderFbo_.reset(new QOpenGLFramebufferObject(size_, format));
-      displayFbo_.reset(new QOpenGLFramebufferObject(size_, format));
+      fbo_[0].reset(new QOpenGLFramebufferObject(size_, format));
+      fbo_[1].reset(new QOpenGLFramebufferObject(size_, format));
     }
 
     if (!inited_)
@@ -81,8 +82,10 @@ public slots:
       Sys_InitParms(sl.size(), argv.data());
     }
 
-    Q_ASSERT(renderFbo_->isValid());
-    renderFbo_->bind();
+    auto& fbo(*fbo_[i]);
+
+    Q_ASSERT(fbo.isValid());
+    fbo.bind();
 
 //  context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
@@ -106,11 +109,11 @@ public slots:
 
     // these calls are probably unnecessary, but can be found in the Qt example
     context_->functions()->glFlush();
-    //renderFbo_->bindDefault();
+    //fbo.bindDefault();
 
-    emit frameGenerated(renderFbo_.get());
+    emit frameGenerated(&fbo);
 
-    renderFbo_.swap(displayFbo_);
+    ++i %= 2;
   }
 
   void shutdown()
@@ -123,8 +126,8 @@ public slots:
       {
         context_->makeCurrent(surface_.get());
 
-        renderFbo_.reset();
-        displayFbo_.reset();
+        fbo_[0].reset();
+        fbo_[1].reset();
 
         context_->doneCurrent();
 
