@@ -45,7 +45,8 @@ public:
 public slots:
   void render()
   {
-//  qDebug() << "render" << renderFbo_.get();
+    qDebug() << "render" << renderFbo_.get();
+
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
@@ -64,9 +65,6 @@ public slots:
     }
 
     Q_ASSERT(renderFbo_->isValid());
-    renderFbo_->bind();
-
-//  context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
     if (!inited_)
     {
@@ -85,6 +83,10 @@ public slots:
 
       Sys_InitParms(sl.size(), argv.data());
     }
+
+    renderFbo_->bind();
+
+//  context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
     // we render a quake frame
     //context_->functions()->glUseProgram(0);
@@ -105,14 +107,13 @@ public slots:
 */
 
     // these calls are probably unnecessary, but can be found in the Qt example
-    //context_->functions()->glFlush();
-    //renderFbo_->bindDefault();
+    context_->functions()->glFlush();
+    renderFbo_->bindDefault();
 
-    emit fboReady(renderFbo_.get());
+    emit frameGenerated(renderFbo_.get());
 
     renderFbo_.swap(displayFbo_);
-
-    usleep(5000);
+    //usleep(5000);
   }
 
   void shutdown()
@@ -139,7 +140,7 @@ public slots:
   }
 
 signals:
-  void fboReady(QOpenGLFramebufferObject*);
+  void frameGenerated(QOpenGLFramebufferObject*);
 };
 
 class TextureNode : public QObject, public QSGSimpleTextureNode
@@ -147,13 +148,13 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
   Q_OBJECT
 
   QQuickItem* item_;
-
-  bool textureConsumed_{true};
+  bool has_texture_{false};
 
 public:
   explicit TextureNode(QQuickItem* const item) :
     item_(item)
   {
+    qDebug() << "!!!!!";
     setFiltering(QSGTexture::Nearest);
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 
@@ -163,31 +164,36 @@ public:
   }
 
 public slots:
-  void consume()
+  void frameSwapped()
   {
-    textureConsumed_ = true;
+//  qDebug() << "frameSwapped";
+    has_texture_ = false;
 
-    //emit wantNextFbo();
+    emit generateFrame();
   }
 
   void updateNode(QOpenGLFramebufferObject* const fbo)
   {
-    //qDebug() << "updateNode" << fbo;
-//  if (textureConsumed_)
+//  qDebug() << "updateNode" << fbo;
+    if (!has_texture_)
     {
-      textureConsumed_ = false;
+      has_texture_ = true;
 
-      setTexture(item_->window()->createTextureFromId(fbo->texture(),
-        fbo->size(), QQuickWindow::TextureIsOpaque));
+      setTexture(item_->window()->createTextureFromId(fbo->takeTexture(),
+          fbo->size(),
+          QQuickWindow::CreateTextureOptions(
+            QQuickWindow::TextureIsOpaque | QQuickWindow::TextureOwnsGLTexture
+          )
+        )
+      );
 
       item_->update();
-
-      emit wantNextFbo();
+//    QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
     }
   }
 
 signals:
-  void wantNextFbo();
+  void generateFrame();
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -274,13 +280,13 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   {
     node = new TextureNode(this);
 
-    connect(renderThread_, &GLQuakeRenderThread::fboReady,
+    connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
       node, &TextureNode::updateNode, Qt::QueuedConnection);
 
     // establish the endless rendering loop
     connect(window(), &QQuickWindow::frameSwapped,
-      node, &TextureNode::consume, Qt::QueuedConnection);
-    connect(node, &TextureNode::wantNextFbo,
+      node, &TextureNode::frameSwapped, Qt::DirectConnection);
+    connect(node, &TextureNode::generateFrame,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
 
     QMetaObject::invokeMethod(renderThread_, "render", Qt::QueuedConnection);
