@@ -87,6 +87,7 @@ public slots:
     }
 
     // we render a quake frame
+    //context_->functions()->glUseProgram(0);
     Sys_RenderFrame();
 
     // some test code to see if fbo rendering is ok
@@ -107,10 +108,11 @@ public slots:
     //context_->functions()->glFlush();
     //renderFbo_->bindDefault();
 
-    emit textureReady(renderFbo_.get());
+    emit fboReady(renderFbo_.get());
 
     renderFbo_.swap(displayFbo_);
-    //usleep(5000);
+
+    usleep(5000);
   }
 
   void shutdown()
@@ -137,7 +139,7 @@ public slots:
   }
 
 signals:
-  void textureReady(QOpenGLFramebufferObject*);
+  void fboReady(QOpenGLFramebufferObject*);
 };
 
 class TextureNode : public QObject, public QSGSimpleTextureNode
@@ -146,7 +148,7 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
 
   QQuickItem* item_;
 
-//QScopedPointer<QOpenGLFramebufferObject> fbo_;
+  bool textureConsumed_{true};
 
 public:
   explicit TextureNode(QQuickItem* const item) :
@@ -161,19 +163,31 @@ public:
   }
 
 public slots:
+  void consume()
+  {
+    textureConsumed_ = true;
+
+    //emit wantNextFbo();
+  }
+
   void updateNode(QOpenGLFramebufferObject* const fbo)
   {
     //qDebug() << "updateNode" << fbo;
-    setTexture(item_->window()->createTextureFromId(fbo->texture(),
-      fbo->size(), QQuickWindow::TextureIsOpaque));
+//  if (textureConsumed_)
+    {
+      textureConsumed_ = false;
 
-    item_->update();
+      setTexture(item_->window()->createTextureFromId(fbo->texture(),
+        fbo->size(), QQuickWindow::TextureIsOpaque));
 
-    emit nodeUpdated();
+      item_->update();
+
+      emit wantNextFbo();
+    }
   }
 
 signals:
-  void nodeUpdated();
+  void wantNextFbo();
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -260,13 +274,13 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   {
     node = new TextureNode(this);
 
-    connect(renderThread_, &GLQuakeRenderThread::textureReady,
+    connect(renderThread_, &GLQuakeRenderThread::fboReady,
       node, &TextureNode::updateNode, Qt::QueuedConnection);
 
     // establish the endless rendering loop
-//  connect(window(), &QQuickWindow::afterRendering,
-//    renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
-    connect(node, &TextureNode::nodeUpdated,
+    connect(window(), &QQuickWindow::frameSwapped,
+      node, &TextureNode::consume, Qt::QueuedConnection);
+    connect(node, &TextureNode::wantNextFbo,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
 
     QMetaObject::invokeMethod(renderThread_, "render", Qt::QueuedConnection);
