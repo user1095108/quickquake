@@ -162,12 +162,6 @@ public:
   }
 
 public slots:
-  void frameSwapped()
-  {
-//  qDebug() << "frameSwapped";
-    emit generateFrame();
-  }
-
   void updateNode(QOpenGLFramebufferObject* const fbo)
   {
 //  qDebug() << "updateNode" << fbo;
@@ -180,9 +174,6 @@ public slots:
 //  item_->update();
     QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
   }
-
-signals:
-  void generateFrame();
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -274,8 +265,6 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
 
     // establish the endless rendering loop
     connect(window(), &QQuickWindow::frameSwapped,
-      node, &TextureNode::frameSwapped, Qt::DirectConnection);
-    connect(node, &TextureNode::generateFrame,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
 
     QMetaObject::invokeMethod(renderThread_, "render", Qt::QueuedConnection);
