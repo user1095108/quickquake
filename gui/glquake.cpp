@@ -154,7 +154,6 @@ public:
   explicit TextureNode(QQuickItem* const item) :
     item_(item)
   {
-    qDebug() << "!!!!!";
     setFiltering(QSGTexture::Nearest);
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 

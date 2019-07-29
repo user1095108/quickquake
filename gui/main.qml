@@ -2,6 +2,8 @@ import QtQuick 2.0
 
 import QtQuick.Controls 2.5
 
+import QtQuick.Layouts 1.13
+
 import Quake 1.0
 
 Rectangle {
@@ -9,22 +11,56 @@ Rectangle {
 
   color: "green"
 
-  Slider{
-    id: rotslider
+  ColumnLayout {
+    height: parent.height - 10
 
-    x: 5
-    y: 5
+    Slider{
+      id: rotslider
 
-    height: 200
+      Layout.alignment: Qt.AlignCenter
+      Layout.preferredHeight: rootitem.height / 3 - 5 * spacing
 
-    orientation: Qt.Vertical
+      orientation: Qt.Vertical
 
-    from: -180
-    to: 180
+      from: -180
+      to: 180
 
-    stepSize: 1
+      stepSize: 1
 
-    value: 0
+      value: 0
+    }
+
+    Slider{
+      id: xslider
+
+      Layout.alignment: Qt.AlignCenter
+      Layout.preferredHeight: parent.height / 3 - 2 * spacing
+
+      orientation: Qt.Vertical
+
+      from: -10
+      to: 10
+
+      stepSize: 1
+
+      value: 0
+    }
+
+    Slider{
+      id: yslider
+
+      Layout.alignment: Qt.AlignCenter
+      Layout.preferredHeight: parent.height / 3 - 2 * spacing
+
+      orientation: Qt.Vertical
+
+      from: -10
+      to: 10
+
+      stepSize: 1
+
+      value: 0
+    }
   }
 
   // quake item
@@ -35,8 +71,8 @@ Rectangle {
 //  width: 640
 //  height: 480
 
-    x: .5 * (parent.width - width)
-    y: .5 * (parent.height - height)
+    x: .5 * (parent.width - width) + xslider.value
+    y: .5 * (parent.height - height) + yslider.value
 
     rotation: rotslider.value
   }
