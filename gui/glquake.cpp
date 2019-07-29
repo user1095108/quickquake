@@ -23,7 +23,7 @@ class GLQuakeRenderThread : public QThread
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
-  unsigned i{};
+  unsigned char i{};
 
   QSize size_;
 
