@@ -23,7 +23,7 @@ class GLQuakeRenderThread : public QThread
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
-  unsigned char i{};
+  unsigned char i_{};
 
   QSize size_;
 
@@ -82,19 +82,17 @@ public slots:
       Sys_InitParms(sl.size(), argv.data());
     }
 
-    auto& fbo(*fbo_[i]);
+    auto& fbo(*fbo_[i_]);
 
     Q_ASSERT(fbo.isValid());
     fbo.bind();
 
-//  context_->functions()->glViewport(0, 0, size_.width(), size_.height());
+    //context_->functions()->glViewport(0, 0, size_.width(), size_.height());
 
     // we render a quake frame
-    //context_->functions()->glUseProgram(0);
     Sys_RenderFrame();
 
     // some test code to see if fbo rendering is ok
-
 /*
     {
       QOpenGLPaintDevice opd(size_);
@@ -108,12 +106,12 @@ public slots:
 */
 
     // these calls are probably unnecessary, but can be found in the Qt example
-    context_->functions()->glFlush();
+    //context_->functions()->glFlush();
     //fbo.bindDefault();
 
     emit frameGenerated(&fbo);
 
-    i = (i + 1) % 2;
+    i_ = (i_ + 1) % 2;
   }
 
   void shutdown()
