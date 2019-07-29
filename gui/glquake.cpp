@@ -113,7 +113,7 @@ public slots:
 
     emit frameGenerated(&fbo);
 
-    ++i %= 2;
+    i = (i + 1) % 2;
   }
 
   void shutdown()
