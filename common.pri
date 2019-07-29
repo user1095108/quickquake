@@ -24,8 +24,8 @@ CONFIG(release, debug|release):QMAKE_RESOURCE_FLAGS += -compress 9
   QMAKE_CFLAGS_RELEASE *= -DNDEBUG -g
   QMAKE_CXXFLAGS_RELEASE *= -DQT_NO_DEBUG_OUTPUT -DNDEBUG -g
 
-# unix:QMAKE_CXXFLAGS_DEBUG += -fsanitize=address,undefined
-# unix:QMAKE_LFLAGS_DEBUG += -fsanitize=address,undefined
+  unix:QMAKE_CXXFLAGS_DEBUG += -fsanitize=address,undefined
+  unix:QMAKE_LFLAGS_DEBUG += -fsanitize=address,undefined
 
   QMAKE_LFLAGS += -fno-stack-protector -fuse-ld=gold
 }
