@@ -148,7 +148,6 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
   Q_OBJECT
 
   QQuickItem* item_;
-  bool has_texture_{false};
 
 public:
   explicit TextureNode(QQuickItem* const item) :
@@ -166,30 +165,20 @@ public slots:
   void frameSwapped()
   {
 //  qDebug() << "frameSwapped";
-    has_texture_ = false;
-
     emit generateFrame();
   }
 
   void updateNode(QOpenGLFramebufferObject* const fbo)
   {
 //  qDebug() << "updateNode" << fbo;
-    if (!has_texture_)
-    {
-      has_texture_ = true;
+    setTexture(item_->window()->createTextureFromId(fbo->takeTexture(),
+        fbo->size(),
+        QQuickWindow::TextureOwnsGLTexture
+      )
+    );
 
-      setTexture(item_->window()->createTextureFromId(fbo->takeTexture(),
-          fbo->size(),
-          QQuickWindow::CreateTextureOptions(
-            QQuickWindow::TextureIsOpaque |
-            QQuickWindow::TextureOwnsGLTexture
-          )
-        )
-      );
-
-//    item_->update();
-      QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
-    }
+//  item_->update();
+    QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
   }
 
 signals:

@@ -71,8 +71,8 @@ Rectangle {
 //  width: 640
 //  height: 480
 
-    x: .5 * (parent.width - width) + xslider.value
-    y: .5 * (parent.height - height) + yslider.value
+    x: .5 * (parent.width - width) - xslider.value
+    y: .5 * (parent.height - height) - yslider.value
 
     rotation: rotslider.value
   }
