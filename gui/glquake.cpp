@@ -45,12 +45,14 @@ public:
 public slots:
   void render()
   {
-    qDebug() << "render" << renderFbo_.get();
-
+    //qDebug() << "render" << renderFbo_.get();
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
     QMutexLocker m(&mutex_);
+
+    scr_width = size_.width();
+    scr_height = size_.height();
 
     if (!renderFbo_ || (renderFbo_->size() != size_))
     {
@@ -59,12 +61,7 @@ public slots:
 
       renderFbo_.reset(new QOpenGLFramebufferObject(size_, format));
       displayFbo_.reset(new QOpenGLFramebufferObject(size_, format));
-
-      scr_width = size_.width();
-      scr_height = size_.height();
     }
-
-    Q_ASSERT(renderFbo_->isValid());
 
     if (!inited_)
     {
@@ -84,6 +81,7 @@ public slots:
       Sys_InitParms(sl.size(), argv.data());
     }
 
+    Q_ASSERT(renderFbo_->isValid());
     renderFbo_->bind();
 
 //  context_->functions()->glViewport(0, 0, size_.width(), size_.height());
@@ -108,12 +106,11 @@ public slots:
 
     // these calls are probably unnecessary, but can be found in the Qt example
     context_->functions()->glFlush();
-    renderFbo_->bindDefault();
+    //renderFbo_->bindDefault();
 
     emit frameGenerated(renderFbo_.get());
 
     renderFbo_.swap(displayFbo_);
-    //usleep(5000);
   }
 
   void shutdown()
@@ -182,13 +179,14 @@ public slots:
       setTexture(item_->window()->createTextureFromId(fbo->takeTexture(),
           fbo->size(),
           QQuickWindow::CreateTextureOptions(
-            QQuickWindow::TextureIsOpaque | QQuickWindow::TextureOwnsGLTexture
+            QQuickWindow::TextureIsOpaque |
+            QQuickWindow::TextureOwnsGLTexture
           )
         )
       );
 
-      item_->update();
-//    QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
+//    item_->update();
+      QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
     }
   }
 
