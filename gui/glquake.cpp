@@ -53,14 +53,6 @@ public slots:
     scr_width = size_.width();
     scr_height = size_.height();
 
-    if (!fbo_ || (fbo_->size() != size_))
-    {
-      QOpenGLFramebufferObjectFormat format;
-      format.setAttachment(QOpenGLFramebufferObject::Depth);
-
-      fbo_.reset(new QOpenGLFramebufferObject(size_, format));
-    }
-
     if (!inited_)
     {
       inited_ = true;
@@ -77,6 +69,14 @@ public slots:
       }
 
       Sys_InitParms(sl.size(), argv.data());
+    }
+
+    if (!fbo_ || (fbo_->size() != size_))
+    {
+      QOpenGLFramebufferObjectFormat format;
+      format.setAttachment(QOpenGLFramebufferObject::Depth);
+
+      fbo_.reset(new QOpenGLFramebufferObject(size_, format));
     }
 
     auto& fbo(*fbo_);

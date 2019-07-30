@@ -30,7 +30,7 @@ SOURCES = Quake/WinQuake/cd_null.c       \
           Quake/WinQuake/crc.c           \
           Quake/WinQuake/cvar.c          \
           \
-          Quake/WinQuake/gl_draw.c       \
+#         Quake/WinQuake/gl_draw.c       \
           Quake/WinQuake/gl_mesh.c       \
           Quake/WinQuake/gl_model.c      \
           Quake/WinQuake/gl_refrag.c     \
@@ -74,4 +74,8 @@ SOURCES = Quake/WinQuake/cd_null.c       \
           Quake/WinQuake/wad.c           \
           Quake/WinQuake/world.c         \
           \
+          gl_draw.c                      \
+          gl_rmisc.c                     \
+          gl_rsurf.c                     \
+          gl_warp.c                      \
           sys_qt.c
