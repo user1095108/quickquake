@@ -162,7 +162,8 @@ public slots:
       )
     );
 
-    QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
+    item_->update();
+    //QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
   }
 };
 
@@ -252,7 +253,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
 
     // let TextureNode consume the generated quake frames
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
-      node, &TextureNode::updateNode, Qt::DirectConnection);
+      node, &TextureNode::updateNode, Qt::QueuedConnection);
 
     // establish the endless rendering loop
     connect(window(), &QQuickWindow::frameSwapped,
