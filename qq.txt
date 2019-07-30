@@ -6,6 +6,7 @@
 ** Quake Port
 ***_ quake submodule added, 26.7.
 ***_ files: mathlib.c
+***_ port completed, 30.7
 ** Qt Quick 2 Integration
 ***_ .qml resources, 26.7.
 ***_ qquake placeholder added, 27.7.
