@@ -103,7 +103,7 @@ public slots:
 */
 
     // these calls are probably unnecessary, but can be found in the Qt example
-    //context_->functions()->glFlush();
+    context_->functions()->glFlush();
     //fbo.bindDefault();
 
     emit frameGenerated(fbo.takeTexture(), fbo.size());
