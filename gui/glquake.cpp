@@ -163,7 +163,6 @@ public slots:
       )
     );
 
-//  item_->update();
     QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
   }
 };
