@@ -258,6 +258,8 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     // establish the endless rendering loop
     connect(window(), &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
+    connect(window(), &QQuickWindow::frameSwapped,
+      this, &GLQuake::update, Qt::DirectConnection);
 
     QMetaObject::invokeMethod(renderThread_, "render", Qt::QueuedConnection);
   }
