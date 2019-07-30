@@ -319,8 +319,6 @@ void GL_Init (void)
 
 //	Con_Printf ("%s %s\n", gl_renderer, gl_version);
 
-  Cvar_SetValue ("gl_clear", 1.0);
-
 	glClearColor (1,0,0,0);
 	glCullFace(GL_FRONT);
 	glEnable(GL_TEXTURE_2D);
