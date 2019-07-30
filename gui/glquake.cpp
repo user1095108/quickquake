@@ -261,7 +261,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     connect(w, &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
     connect(w, &QQuickWindow::frameSwapped,
-      this, &GLQuake::update, Qt::QueuedConnection);
+      this, &GLQuake::update, Qt::DirectConnection);
   }
 
   node->setRect(br);
