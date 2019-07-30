@@ -102,8 +102,7 @@ public slots:
     }
 */
 
-    // these calls are probably unnecessary, but can be found in the Qt example
-    //fbo.bindDefault();
+    // we need to finish now, as we relinquish the texture later
     context_->functions()->glFinish();
 
     emit frameGenerated(fbo.takeTexture(), fbo.size());
@@ -262,7 +261,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     connect(w, &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
     connect(w, &QQuickWindow::frameSwapped,
-      this, &GLQuake::update, Qt::DirectConnection);
+      this, &GLQuake::update, Qt::QueuedConnection);
   }
 
   node->setRect(br);
