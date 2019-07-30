@@ -21,9 +21,7 @@ class GLQuakeRenderThread : public QThread
   QScopedPointer<QOffscreenSurface> surface_;
   QScopedPointer<QOpenGLContext> context_;
 
-  QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
-
-  unsigned char i_{};
+  QScopedPointer<QOpenGLFramebufferObject> fbo_;
 
   QSize size_;
 
@@ -46,7 +44,7 @@ public:
 public slots:
   void render()
   {
-    //qDebug() << "render" << fbo_[i].get();
+    //qDebug() << "render" << fbo_.get();
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
@@ -55,13 +53,12 @@ public slots:
     scr_width = size_.width();
     scr_height = size_.height();
 
-    if (!fbo_[0] || (fbo_[0]->size() != size_))
+    if (!fbo_ || (fbo_->size() != size_))
     {
       QOpenGLFramebufferObjectFormat format;
       format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-      fbo_[0].reset(new QOpenGLFramebufferObject(size_, format));
-      fbo_[1].reset(new QOpenGLFramebufferObject(size_, format));
+      fbo_.reset(new QOpenGLFramebufferObject(size_, format));
     }
 
     if (!inited_)
@@ -82,7 +79,7 @@ public slots:
       Sys_InitParms(sl.size(), argv.data());
     }
 
-    auto& fbo(*fbo_[i_]);
+    auto& fbo(*fbo_);
 
     Q_ASSERT(fbo.isValid());
     fbo.bind();
@@ -109,9 +106,7 @@ public slots:
     //context_->functions()->glFlush();
     //fbo.bindDefault();
 
-    emit frameGenerated(&fbo);
-
-    i_ = (i_ + 1) % 2;
+    emit frameGenerated(fbo.takeTexture(), fbo.size());
   }
 
   void shutdown()
@@ -124,8 +119,7 @@ public slots:
       {
         context_->makeCurrent(surface_.get());
 
-        fbo_[0].reset();
-        fbo_[1].reset();
+        fbo_.reset();
 
         context_->doneCurrent();
 
@@ -138,7 +132,7 @@ public slots:
   }
 
 signals:
-  void frameGenerated(QOpenGLFramebufferObject*);
+  void frameGenerated(uint, QSize const&);
 };
 
 class TextureNode : public QObject, public QSGSimpleTextureNode
@@ -160,11 +154,11 @@ public:
   }
 
 public slots:
-  void updateNode(QOpenGLFramebufferObject* const fbo)
+  void updateNode(uint const to, QSize const& size)
   {
 //  qDebug() << "updateNode" << fbo;
-    setTexture(item_->window()->createTextureFromId(fbo->takeTexture(),
-        fbo->size(),
+    setTexture(item_->window()->createTextureFromId(to,
+        size,
         QQuickWindow::TextureOwnsGLTexture
       )
     );
