@@ -255,13 +255,14 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
       node, &TextureNode::updateNode, Qt::QueuedConnection);
 
-    // establish the endless rendering loop
-    connect(window(), &QQuickWindow::frameSwapped,
-      renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
-    connect(window(), &QQuickWindow::frameSwapped,
-      this, &GLQuake::update, Qt::DirectConnection);
+    auto const w(window());
+    Q_ASSERT(w);
 
-    QMetaObject::invokeMethod(renderThread_, "render", Qt::QueuedConnection);
+    // establish the endless rendering loop
+    connect(w, &QQuickWindow::frameSwapped,
+      renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
+    connect(w, &QQuickWindow::frameSwapped,
+      this, &GLQuake::update, Qt::DirectConnection);
   }
 
   node->setRect(br);
