@@ -32,7 +32,6 @@ public:
 
   void setSize(QSize const& size)
   {
-    //qDebug() << "setSize" << size;
     QMutexLocker m(&mutex_);
 
     if (!size.isEmpty())
@@ -44,7 +43,6 @@ public:
 public slots:
   void render()
   {
-    //qDebug() << "render" << fbo_.get();
     Q_ASSERT(!size_.isEmpty());
     context_->makeCurrent(surface_.get());
 
@@ -154,7 +152,6 @@ public:
 public slots:
   void updateNode(uint const to, QSize const& size)
   {
-//  qDebug() << "updateNode" << fbo;
     setTexture(item_->window()->createTextureFromId(to,
         size,
         QQuickWindow::TextureOwnsGLTexture
