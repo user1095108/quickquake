@@ -32,10 +32,10 @@ public:
 
   void setSize(QSize const& size)
   {
-    QMutexLocker m(&mutex_);
-
     if (!size.isEmpty())
     {
+      QMutexLocker m(&mutex_);
+
       size_ = size;
     }
   }
