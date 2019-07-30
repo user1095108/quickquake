@@ -104,7 +104,7 @@ public slots:
 
     // these calls are probably unnecessary, but can be found in the Qt example
     //fbo.bindDefault();
-    context_->functions()->glFlush();
+    context_->functions()->glFinish();
 
     emit frameGenerated(fbo.takeTexture(), fbo.size());
   }
