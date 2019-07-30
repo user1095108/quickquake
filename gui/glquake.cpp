@@ -146,9 +146,8 @@ public:
     item_(item)
   {
     setFiltering(QSGTexture::Nearest);
-    setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-
     setOwnsTexture(true);
+    setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 
     setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
   }
@@ -224,13 +223,13 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     f.setProfile(QSurfaceFormat::CompatibilityProfile);
 
     renderThread_->context_.reset(new QOpenGLContext);
-    renderThread_->surface_.reset(new QOffscreenSurface);
 
     renderThread_->context_->setFormat(f);
     renderThread_->context_->setShareContext(ccontext);
     renderThread_->context_->create();
     Q_ASSERT(renderThread_->context_->isValid());
 
+    renderThread_->surface_.reset(new QOffscreenSurface);
     renderThread_->surface_->setFormat(f);
     renderThread_->surface_->create();
     Q_ASSERT(renderThread_->surface_->isValid());
