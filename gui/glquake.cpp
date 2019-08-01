@@ -258,9 +258,11 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   {
     node = new TextureNode(this);
 
+    // queued, so we don't need a mutex
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
       node, &TextureNode::updateNode, Qt::QueuedConnection);
 
+    // queued, so we switch to the rendering thread
     connect(window(), &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
   }
