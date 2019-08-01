@@ -167,6 +167,8 @@ public slots:
         QQuickWindow::TextureOwnsGLTexture
       )
     );
+
+    item_->update();
   }
 };
 
@@ -267,8 +269,6 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     // establish the endless rendering loop
     connect(w, &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
-    connect(w, &QQuickWindow::frameSwapped,
-      this, &GLQuake::update, Qt::DirectConnection);
   }
 
   return node->setRect(br), node;
