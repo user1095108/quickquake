@@ -99,7 +99,7 @@ public slots:
     }
 */
 
-    //context_->functions()->glFinish();
+    context_->functions()->glFinish();
 
     emit frameGenerated(fbo.takeTexture(), fbo.size());
   }
