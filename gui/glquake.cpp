@@ -78,8 +78,8 @@ public slots:
     }
 
     auto& fbo(*fbo_);
-
     Q_ASSERT(fbo.isValid());
+
     fbo.bind();
 
     //context_->functions()->glViewport(0, 0, size_.width(), size_.height());
