@@ -134,6 +134,8 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
 {
   Q_OBJECT
 
+  QMutex mutex_;
+
   QScopedPointer<QSGTexture> texture_;
 
   QQuickItem* item_;
@@ -151,6 +153,8 @@ public:
 
   void consumeTexture() noexcept
   {
+    QMutexLocker l(&mutex_);
+
     if (texture_)
     {
       setTexture(texture_.take());
@@ -160,11 +164,15 @@ public:
 public slots:
   void updateNode(uint const to, QSize const& size)
   {
-    texture_.reset(item_->window()->createTextureFromId(to,
-        size,
-        QQuickWindow::TextureOwnsGLTexture
-      )
-    );
+    {
+      QMutexLocker l(&mutex_);
+
+      texture_.reset(item_->window()->createTextureFromId(to,
+          size,
+          QQuickWindow::TextureOwnsGLTexture
+        )
+      );
+    }
 
     item_->update();
   }
@@ -258,9 +266,8 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   {
     node = new TextureNode(this);
 
-    // queued, so we don't need a mutex
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
-      node, &TextureNode::updateNode, Qt::QueuedConnection);
+      node, &TextureNode::updateNode, Qt::DirectConnection);
 
     // queued, so we switch to the rendering thread
     connect(window(), &QQuickWindow::frameSwapped,
