@@ -259,7 +259,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
     node = new TextureNode(this);
 
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
-      node, &TextureNode::updateNode, Qt::DirectConnection);
+      node, &TextureNode::updateNode, Qt::QueuedConnection);
 
     connect(window(), &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
