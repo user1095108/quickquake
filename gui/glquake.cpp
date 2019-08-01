@@ -184,9 +184,6 @@ GLQuake::GLQuake(QQuickItem* const parent) :
   renderThread_(new GLQuakeRenderThread(this))
 {
   setFlag(ItemHasContents);
-
-  connect(this, &QQuickItem::parentChanged,
-    renderThread_, &GLQuakeRenderThread::shutdown, Qt::DirectConnection);
 }
 
 //////////////////////////////////////////////////////////////////////////////
