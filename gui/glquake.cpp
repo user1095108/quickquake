@@ -260,14 +260,10 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
   {
     node = new TextureNode(this);
 
-    // let TextureNode consume the generated quake frames
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
       node, &TextureNode::updateNode, Qt::DirectConnection);
 
-    auto const w(window());
-
-    // establish the endless rendering loop
-    connect(w, &QQuickWindow::frameSwapped,
+    connect(window(), &QQuickWindow::frameSwapped,
       renderThread_, &GLQuakeRenderThread::render, Qt::QueuedConnection);
   }
 
