@@ -87,7 +87,6 @@ public slots:
     // we render a quake frame
     Sys_RenderFrame();
 
-    // some test code to see if fbo rendering is ok
 /*
     {
       QOpenGLPaintDevice opd(size_);
@@ -100,8 +99,7 @@ public slots:
     }
 */
 
-    // we need to finish now, as we relinquish the texture later
-    context_->functions()->glFinish();
+    //context_->functions()->glFinish();
 
     emit frameGenerated(fbo.takeTexture(), fbo.size());
   }
