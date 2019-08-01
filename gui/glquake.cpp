@@ -136,6 +136,8 @@ class TextureNode : public QObject, public QSGSimpleTextureNode
 {
   Q_OBJECT
 
+  QScopedPointer<QSGTexture> texture_;
+
   QQuickItem* item_;
 
 public:
@@ -149,10 +151,18 @@ public:
     setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
   }
 
+  void consumeTexture() noexcept
+  {
+    if (texture_)
+    {
+      setTexture(texture_.take());
+    }
+  }
+
 public slots:
   void updateNode(uint const to, QSize const& size)
   {
-    setTexture(item_->window()->createTextureFromId(to,
+    texture_.reset(item_->window()->createTextureFromId(to,
         size,
         QQuickWindow::TextureOwnsGLTexture
       )
@@ -240,16 +250,19 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
 
   auto node(static_cast<TextureNode*>(n));
 
-  if (!node)
+  if (node)
+  {
+    node->consumeTexture();
+  }
+  else
   {
     node = new TextureNode(this);
 
     // let TextureNode consume the generated quake frames
     connect(renderThread_, &GLQuakeRenderThread::frameGenerated,
-      node, &TextureNode::updateNode, Qt::QueuedConnection);
+      node, &TextureNode::updateNode, Qt::DirectConnection);
 
     auto const w(window());
-    Q_ASSERT(w);
 
     // establish the endless rendering loop
     connect(w, &QQuickWindow::frameSwapped,
@@ -258,9 +271,7 @@ QSGNode* GLQuake::updatePaintNode(QSGNode* const n,
       this, &GLQuake::update, Qt::DirectConnection);
   }
 
-  node->setRect(br);
-
-  return node;
+  return node->setRect(br), node;
 }
 
 #include "glquake.moc"
