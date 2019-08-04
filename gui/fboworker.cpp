@@ -150,22 +150,13 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
   auto node(static_cast<TextureNode*>(n));
 
-  if (node)
-  {
-    node->consumeTexture();
-  }
-  else
+  if (!node)
   {
     node = new TextureNode(this);
 
     // queued, so we switch to the rendering thread
     connect(window(), &QQuickWindow::frameSwapped,
       node, &TextureNode::work, Qt::QueuedConnection);
-  }
-
-  {
-    QMutexLocker l(&node->mutex_);
-    node->setRect(br);
   }
 
   if (!node->context_)
@@ -203,6 +194,24 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       node, &TextureNode::shutdown, Qt::DirectConnection);
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
+  }
+
+  {
+    bool eq;
+
+    {
+      QMutexLocker l(&node->mutex_);
+
+      if (!(eq = node->rect() == br))
+      {
+        node->setRect(br);
+      }
+    }
+
+    if (eq)
+    {
+      node->consumeTexture();
+    }
   }
 
   return node;
