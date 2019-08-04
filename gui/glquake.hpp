@@ -2,19 +2,16 @@
 # define GLQUAKE_HPP
 # pragma once
 
-class GLQuake : public QQuickItem
+class GLQuake : public QObject
 {
   Q_OBJECT
 
-  class GLQuakeRenderThread* renderThread_;
+  bool inited_{};
 
 public:
-  explicit GLQuake(QQuickItem* = nullptr);
-  ~GLQuake();
+  using QObject::QObject;
 
-private:
-  void geometryChanged(QRectF const&, QRectF const&) final;
-  QSGNode* updatePaintNode(QSGNode*, QQuickItem::UpdatePaintNodeData*) final;
+  Q_INVOKABLE void render(QSize const&);
 };
 
 #endif // QQUAKE_HPP

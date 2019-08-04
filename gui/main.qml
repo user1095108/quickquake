@@ -64,7 +64,7 @@ Rectangle {
   }
 
   // quake item
-  GLQuake {
+  FBOWorker {
     width: .75 * parent.width
     height: .75 * parent.height
 
@@ -75,5 +75,7 @@ Rectangle {
     y: .5 * (parent.height - height) - yslider.value
 
     rotation: rotslider.value
+
+    GLQuake {}
   }
 }
