@@ -74,8 +74,6 @@ Rectangle {
     x: .5 * (parent.width - width) - xslider.value
     y: .5 * (parent.height - height) - yslider.value
 
-    contextProfile: FBOWorker.CompatibilityProfile
-
     rotation: rotslider.value
 
     GLQuake {}
