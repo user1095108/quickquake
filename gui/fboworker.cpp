@@ -136,6 +136,18 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
 }
 
 //////////////////////////////////////////////////////////////////////////////
+void FBOWorker::setContextProfile(
+  QSurfaceFormat::OpenGLContextProfile const e)
+{
+  if (e != contextProfile_)
+  {
+    contextProfile_ = e;
+
+    emit contextProfileChanged();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
 QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   QQuickItem::UpdatePaintNodeData*)
 {
