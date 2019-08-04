@@ -201,8 +201,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     ccontext->doneCurrent();
 
     auto f(ccontext->format());
-    // quake needs OpenGL compatibility profile
-    f.setProfile(QSurfaceFormat::CompatibilityProfile);
+    f.setProfile(contextProfile_);
 
     node->context_.reset(new QOpenGLContext);
 
