@@ -155,10 +155,10 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     auto const w(window());
     Q_ASSERT(w);
 
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
     connect(w, &QQuickWindow::frameSwapped,
       this, &FBOWorker::update, Qt::DirectConnection);
+    connect(w, &QQuickWindow::sceneGraphInvalidated,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
   }
   else
   {
