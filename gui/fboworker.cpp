@@ -35,16 +35,6 @@ public:
     wait();
   }
 
-  void consumeTexture() noexcept
-  {
-    QMutexLocker l(&mutex_);
-
-    if (texture_)
-    {
-      setTexture(texture_.take());
-    }
-  }
-
 public slots:
   void shutdown() noexcept
   {
@@ -173,21 +163,21 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   }
   else
   {
-    bool eq;
+    QMutexLocker l(&node->mutex_);
 
+    if (node->rect() == br)
     {
-      QMutexLocker l(&node->mutex_);
-
-      if (!(eq = node->rect() == br))
-      {
-        node->setRect(br);
-      }
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+    }
+    else
+    {
+      node->setRect(br);
     }
 
-    if (eq)
+    if (node->texture_ &&
+      (node->texture_->textureSize() == br.size().toSize()))
     {
-      node->consumeTexture();
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      node->setTexture(node->texture_.take());
     }
   }
 
