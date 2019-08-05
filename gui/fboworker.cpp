@@ -175,7 +175,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     }
 
     if (node->texture_ &&
-      (node->texture_->textureSize() == br.size().toSize()))
+      (node->texture_->textureSize() == size().toSize()))
     {
       node->setTexture(node->texture_.take());
     }
