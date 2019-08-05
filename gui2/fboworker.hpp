@@ -4,14 +4,15 @@
 
 class FBOWorker : public QQuickFramebufferObject
 {
-  class Renderer : QQuickFramebufferObject::Renderer;
+  Q_OBJECT
 
 public:
-  using QQuickItem::QQuickItem;
+  class Renderer;
+
+  using QQuickFramebufferObject::QQuickFramebufferObject;
 
 private:
-  QQuickFramebufferObject::Renderer*
-    QQuickFramebufferObject::createRenderer() const final;
+  QQuickFramebufferObject::Renderer* createRenderer() const final;
 };
 
 #endif // FBOWORKER_HPP

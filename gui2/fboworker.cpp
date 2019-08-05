@@ -1,15 +1,51 @@
 #include "fboworker.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
-QOpenGLFramebufferObject*
-FBOWorker::Renderer::createFramebufferObject(QSize const& size)
+class FBOWorker::Renderer : public QQuickFramebufferObject::Renderer
 {
-  QScopedPointer<QOpenGLFramebufferObject> fbo(
-    new QOpenGLFramebufferObject(size));
-}
+  QQuickItem* item_;
+
+  QOpenGLFramebufferObject* createFramebufferObject(QSize const& size)
+  {
+    QOpenGLFramebufferObjectFormat format;
+    format.setAttachment(QOpenGLFramebufferObject::Depth);
+
+    return new QOpenGLFramebufferObject(size, format);
+  }
+
+  void render() final
+  {
+    auto const w(item_->window());
+    Q_ASSERT(w);
+
+    auto const ccontext(w->openglContext());
+    Q_ASSERT(ccontext);
+
+    ccontext->functions()->glUseProgram(0);
+
+    auto const size(framebufferObject()->size());
+
+    {
+      QQmlListReference const ref(item_, "data");
+
+      for (int i{}, c(ref.count()); i != c; ++i)
+      {
+        QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
+          Q_ARG(QSize, size));
+      }
+    }
+
+    item_->update();
+  }
+
+  void synchronize(QQuickFramebufferObject* const item) final
+  {
+    item_ = item;
+  }
+};
 
 //////////////////////////////////////////////////////////////////////////////
-QQuickFramebufferObject::Renderer*
-QQuickFramebufferObject::createRenderer() const
+QQuickFramebufferObject::Renderer* FBOWorker::createRenderer() const
 {
+  return new FBOWorker::Renderer;
 }
