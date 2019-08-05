@@ -165,7 +165,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     node = new TextureNode(this);
     node->setRect(br);
 
-    connect(window(), &QQuickWindow::frameSwapped,
+    auto const w(window());
+    Q_ASSERT(w);
+
+    connect(w, &QQuickWindow::sceneGraphInvalidated,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
+    connect(w, &QQuickWindow::frameSwapped,
       this, &FBOWorker::update, Qt::DirectConnection);
   }
   else
@@ -219,8 +224,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     node->start();
 
     connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
 
     QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
