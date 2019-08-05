@@ -31,7 +31,7 @@ public:
     auto const size(framebufferObject()->size());
 
     {
-      QQmlListReference const ref(item_, "data");
+      QQmlListReference const ref(item_, "resources");
 
       for (int i{}, c(ref.count()); i != c; ++i)
       {
