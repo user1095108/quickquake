@@ -3,7 +3,12 @@
 //////////////////////////////////////////////////////////////////////////////
 class FBOWorker::Renderer : public QQuickFramebufferObject::Renderer
 {
+public:
   QQuickItem* item_;
+
+  Renderer(QQuickItem* const item) : item_(item)
+  {
+  }
 
   QOpenGLFramebufferObject* createFramebufferObject(QSize const& size)
   {
@@ -37,15 +42,10 @@ class FBOWorker::Renderer : public QQuickFramebufferObject::Renderer
 
     item_->update();
   }
-
-  void synchronize(QQuickFramebufferObject* const item) final
-  {
-    item_ = item;
-  }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 QQuickFramebufferObject::Renderer* FBOWorker::createRenderer() const
 {
-  return new FBOWorker::Renderer;
+  return new FBOWorker::Renderer(const_cast<FBOWorker*>(this));
 }
