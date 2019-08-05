@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
   view.setResizeMode(QQuickView::SizeRootObjectToView);
   view.resize(640, 480);
 
+  view.setColor(Qt::black);
   view.setSource(QUrl(QStringLiteral("qrc:main.qml")));
 
   if (QQuickView::Error == view.status())
