@@ -75,10 +75,9 @@ public slots:
       fbo_.reset(new QOpenGLFramebufferObject(size, format));
     }
 
-    auto& fbo(*fbo_);
-    Q_ASSERT(fbo.isValid());
+    Q_ASSERT(fbo_->isValid());
 
-    fbo.bind();
+    fbo_->bind();
 
     //context_->functions()->glViewport(0, 0, size.width(), size.height());
 
@@ -106,7 +105,7 @@ public slots:
 
     context_->functions()->glFinish();
 
-    texture_.reset(item_->window()->createTextureFromId(fbo.takeTexture(),
+    texture_.reset(item_->window()->createTextureFromId(fbo_->takeTexture(),
         size,
         QQuickWindow::TextureOwnsGLTexture
       )
