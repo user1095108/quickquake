@@ -29,7 +29,7 @@ public:
     setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
   }
 
-  ~TextureNode()
+  ~TextureNode() noexcept
   {
     shutdown();
     wait();
@@ -46,7 +46,7 @@ public:
   }
 
 public slots:
-  void shutdown()
+  void shutdown() noexcept
   {
     if (isRunning())
     {
@@ -123,8 +123,6 @@ public slots:
         )
       );
     }
-
-    item_->update();
   }
 };
 
@@ -165,12 +163,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   if (!node)
   {
     node = new TextureNode(this);
+    node->setRect(br);
 
-    // queued, so we switch to the rendering thread
     connect(window(), &QQuickWindow::frameSwapped,
-      node, &TextureNode::work, Qt::QueuedConnection);
+      this, &FBOWorker::update, Qt::DirectConnection);
   }
-
+  else
   {
     bool eq;
 
@@ -186,6 +184,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (eq)
     {
       node->consumeTexture();
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
   }
 
@@ -223,6 +222,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       node, &TextureNode::shutdown, Qt::DirectConnection);
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
+
+    QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
   }
 
   return node;
