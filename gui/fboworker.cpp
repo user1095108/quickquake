@@ -70,59 +70,57 @@ public slots:
 
   void work()
   {
+    QMutexLocker m(&mutex_);
+
+    auto const size(rect().size().toSize());
+    Q_ASSERT(!size.isEmpty());
+
+    context_->makeCurrent(surface_.get());
+
+    if (!fbo_ || (fbo_->size() != size))
     {
-      QMutexLocker m(&mutex_);
+      QOpenGLFramebufferObjectFormat format;
+      format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-      auto const size(rect().size().toSize());
-      Q_ASSERT(!size.isEmpty());
+      fbo_.reset(new QOpenGLFramebufferObject(size, format));
+    }
 
-      context_->makeCurrent(surface_.get());
+    auto& fbo(*fbo_);
+    Q_ASSERT(fbo.isValid());
 
-      if (!fbo_ || (fbo_->size() != size))
-      {
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::Depth);
+    fbo.bind();
 
-        fbo_.reset(new QOpenGLFramebufferObject(size, format));
-      }
-
-      auto& fbo(*fbo_);
-      Q_ASSERT(fbo.isValid());
-
-      fbo.bind();
-
-      //context_->functions()->glViewport(0, 0, size.width(), size.height());
+    //context_->functions()->glViewport(0, 0, size.width(), size.height());
 
 /*
-      {
-        QOpenGLPaintDevice opd(size);
-        QPainter painter(&opd);
+    {
+      QOpenGLPaintDevice opd(size);
+      QPainter painter(&opd);
 
-        painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
+      painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
 
-        painter.setPen(Qt::red);
-        painter.drawLine(0, 0, size.width(), size.height());
-      }
+      painter.setPen(Qt::red);
+      painter.drawLine(0, 0, size.width(), size.height());
+    }
 */
 
+    {
+      QQmlListReference const ref(item_, "data");
+
+      for (int i{}, c(ref.count()); i != c; ++i)
       {
-        QQmlListReference const ref(item_, "data");
-
-        for (int i{}, c(ref.count()); i != c; ++i)
-        {
-          QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
-            Q_ARG(QSize, size));
-        }
+        QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
+          Q_ARG(QSize, size));
       }
-
-      context_->functions()->glFinish();
-
-      texture_.reset(item_->window()->createTextureFromId(fbo.takeTexture(),
-          size,
-          QQuickWindow::TextureOwnsGLTexture
-        )
-      );
     }
+
+    context_->functions()->glFinish();
+
+    texture_.reset(item_->window()->createTextureFromId(fbo.takeTexture(),
+        size,
+        QQuickWindow::TextureOwnsGLTexture
+      )
+    );
   }
 };
 
