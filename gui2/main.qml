@@ -6,10 +6,8 @@ import QtQuick.Layouts 1.13
 
 import Quake 1.0
 
-Rectangle {
+Item {
   id: rootitem
-
-  color: "green"
 
   ColumnLayout {
     height: parent.height
