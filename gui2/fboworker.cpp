@@ -6,7 +6,7 @@ class FBOWorker::Renderer : public QQuickFramebufferObject::Renderer
 public:
   QQuickItem* item_;
 
-  Renderer(QQuickItem* const item) : item_(item)
+  Renderer(QQuickItem* const item) noexcept : item_(item)
   {
   }
 
