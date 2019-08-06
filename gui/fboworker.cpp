@@ -162,8 +162,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     if (node->texture_ && (size().toSize() == node->rect().size().toSize()))
     {
-      node->setTexture(node->texture_.take());
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+
+      node->setTexture(node->texture_.take());
     }
     else if (!node->context_)
     {
