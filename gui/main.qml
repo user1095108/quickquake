@@ -50,8 +50,8 @@ Item {
 
       orientation: Qt.Vertical
 
-      from: -10
-      to: 10
+      from: -50
+      to: 50
 
       stepSize: 1
 
@@ -66,8 +66,8 @@ Item {
 
       orientation: Qt.Vertical
 
-      from: -10
-      to: 10
+      from: -50
+      to: 50
 
       stepSize: 1
 

@@ -87,10 +87,8 @@ public slots:
         fbo_[i_].reset(new QOpenGLFramebufferObject(size, format));
       }
 
-      auto& fbo(*fbo_[i_]);
-      Q_ASSERT(fbo.isValid());
-
-      fbo.bind();
+      Q_ASSERT(fbo_[i_]->isValid());
+      fbo_[i_]->bind();
     }
 
     {
