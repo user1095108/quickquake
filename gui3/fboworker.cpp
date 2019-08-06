@@ -149,13 +149,19 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     if (node->fbo_[node->i_] && node->workFinished_)
     {
-      node->workFinished_ = false;
+      if (size().toSize() == node->rect().size().toSize())
+      {
+        node->workFinished_ = false;
 
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      }
 
       auto& fbo(*node->fbo_[node->i_]);
 
-      node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
+      if (fbo.texture() != uint(node->texture()->textureId()))
+      {
+        node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
+      }
     }
     else if (!node->context_)
     {
