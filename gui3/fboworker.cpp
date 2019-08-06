@@ -8,10 +8,12 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QMutex mutex_;
 
+  unsigned char i_{};
+
   QScopedPointer<QOffscreenSurface> surface_;
   QScopedPointer<QOpenGLContext> context_;
 
-  QScopedPointer<QOpenGLFramebufferObject> fbo_;
+  QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
   QScopedPointer<QSGTexture> texture_;
 
@@ -48,7 +50,8 @@ public slots:
 
         QOpenGLFramebufferObject::bindDefault();
 
-        fbo_.reset();
+        fbo_[0].reset();
+        fbo_[1].reset();
 
         context_->doneCurrent();
 
@@ -64,22 +67,25 @@ public slots:
   {
     QMutexLocker m(&mutex_);
 
+    i_ = (i_ + 1) % 2;
+
     auto const size(rect().size().toSize());
     Q_ASSERT(!size.isEmpty());
 
     context_->makeCurrent(surface_.get());
 
-    if (!fbo_ || (fbo_->size() != size))
+    if (!fbo_[i_] || (fbo_[i_]->size() != size))
     {
       QOpenGLFramebufferObjectFormat format;
       format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-      fbo_.reset(new QOpenGLFramebufferObject(size, format));
+      fbo_[i_].reset(new QOpenGLFramebufferObject(size, format));
     }
 
-    Q_ASSERT(fbo_->isValid());
+    auto& fbo(*fbo_[i_]);
+    Q_ASSERT(fbo.isValid());
 
-    fbo_->bind();
+    fbo.bind();
 
     //context_->functions()->glViewport(0, 0, size.width(), size.height());
 
@@ -104,14 +110,6 @@ public slots:
           Q_ARG(QSize, size));
       }
     }
-
-    context_->functions()->glFinish();
-
-    texture_.reset(item_->window()->createTextureFromId(fbo_->takeTexture(),
-        size,
-        QQuickWindow::TextureOwnsGLTexture
-      )
-    );
   }
 };
 
@@ -151,28 +149,23 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
   if (node)
   {
+    auto const w(window());
+    Q_ASSERT(w);
+
     QMutexLocker l(&node->mutex_);
 
-    if (node->rect() == br)
+    node->setRect(br);
+
+    if (node->fbo_[node->i_])
     {
+      auto& fbo(*node->fbo_[node->i_]);
+
+      node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
+
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else
+    else if (!node->context_)
     {
-      node->setRect(br);
-    }
-
-    if (node->texture_ &&
-      (node->texture_->textureSize() == size().toSize()))
-    {
-      node->setTexture(node->texture_.take());
-    }
-
-    if (!node->context_)
-    {
-      auto const w(window());
-      Q_ASSERT(w);
-
       auto const ccontext(w->openglContext());
       Q_ASSERT(ccontext);
 
