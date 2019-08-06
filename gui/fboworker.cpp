@@ -15,8 +15,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QScopedPointer<QSGTexture> texture_;
 
-  bool workFinished_{};
-
   QQuickItem* item_;
 
 public:
@@ -68,7 +66,6 @@ public slots:
 
     {
       QMutexLocker m(&mutex_);
-      workFinished_ = false;
 
       size = rect().size().toSize();
       Q_ASSERT(!size.isEmpty());
@@ -121,8 +118,6 @@ public slots:
           QQuickWindow::TextureOwnsGLTexture
         )
       );
-
-      workFinished_ = true;
     }
   }
 };
@@ -165,7 +160,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   {
     QMutexLocker l(&node->mutex_);
 
-    if (node->texture_ && node->workFinished_)
+    if (node->texture_)
     {
       if (size().toSize() == node->rect().size().toSize())
       {
