@@ -9,6 +9,23 @@ import Quake 1.0
 Item {
   id: rootitem
 
+  // quake item
+  FBOWorker {
+    property real a: 1
+
+    width: a * parent.width
+    height: a * parent.height
+
+    x: .5 * (parent.width - width) - xslider.value
+    y: .5 * (parent.height - height) - yslider.value
+
+    mirrorVertically: true
+
+    rotation: rotslider.value
+
+    GLQuake {}
+  }
+
   ColumnLayout {
     height: parent.height
 
@@ -59,23 +76,5 @@ Item {
 
       value: 0
     }
-  }
-
-  // quake item
-  FBOWorker {
-    width: .75 * parent.width
-    height: .75 * parent.height
-
-//  width: 640
-//  height: 480
-
-    x: .5 * (parent.width - width) - xslider.value
-    y: .5 * (parent.height - height) - yslider.value
-
-    mirrorVertically: true
-
-    rotation: rotslider.value
-
-    GLQuake {}
   }
 }
