@@ -69,6 +69,7 @@ public slots:
     {
       QMutexLocker m(&mutex_);
 
+      Q_ASSERT(!workFinished_);
       i_ = (i_ + 1) % 2;
 
       size = rect().size().toSize();
