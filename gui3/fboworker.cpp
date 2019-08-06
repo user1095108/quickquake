@@ -14,7 +14,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
   unsigned char i_{};
-  bool textureConsumed_{};
   bool workFinished_{};
 
   QQuickItem* item_;
@@ -71,7 +70,6 @@ public slots:
       QMutexLocker m(&mutex_);
 
       i_ = (i_ + 1) % 2;
-      workFinished_ = false;
 
       size = rect().size().toSize();
       Q_ASSERT(!size.isEmpty());
@@ -103,7 +101,6 @@ public slots:
     {
       QMutexLocker m(&mutex_);
 
-      textureConsumed_ = false;
       workFinished_ = true;
     }
   }
@@ -152,19 +149,13 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     if (node->fbo_[node->i_] && node->workFinished_)
     {
-      if (size().toSize() == node->rect().size().toSize())
-      {
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
+      node->workFinished_ = false;
 
-      if (!node->textureConsumed_)
-      {
-        node->textureConsumed_ = true;
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
 
-        auto& fbo(*node->fbo_[node->i_]);
+      auto& fbo(*node->fbo_[node->i_]);
 
-        node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
-      }
+      node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
     }
     else if (!node->context_)
     {
