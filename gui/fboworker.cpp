@@ -160,17 +160,10 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   {
     QMutexLocker l(&node->mutex_);
 
-    if (node->texture_)
+    if (node->texture_ && (size().toSize() == node->rect().size().toSize()))
     {
-      if (size().toSize() == node->rect().size().toSize())
-      {
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
-
-      if (node->texture_->textureSize() == size().toSize())
-      {
-        node->setTexture(node->texture_.take());
-      }
+      node->setTexture(node->texture_.take());
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
     else if (!node->context_)
     {
