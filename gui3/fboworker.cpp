@@ -13,8 +13,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
-  QScopedPointer<QSGTexture> texture_;
-
   unsigned char i_{};
   bool workFinished_{};
 
