@@ -9,7 +9,6 @@ import Quake 1.0
 Item {
   id: rootitem
 
-  // quake item
   FBOWorker {
     property real a: 1
 
