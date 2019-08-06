@@ -40,7 +40,7 @@ public:
       }
     }
 
-    QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
+    update();
   }
 };
 
