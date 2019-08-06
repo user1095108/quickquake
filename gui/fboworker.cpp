@@ -15,6 +15,8 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QScopedPointer<QSGTexture> texture_;
 
+  bool workFinished_{};
+
   QQuickItem* item_;
 
 public:
@@ -62,38 +64,42 @@ public slots:
 
   void work()
   {
-    QMutexLocker m(&mutex_);
+    QSize size;
 
-    auto const size(rect().size().toSize());
-    Q_ASSERT(!size.isEmpty());
-
-    context_->makeCurrent(surface_.get());
-
-    if (!fbo_ || (fbo_->size() != size))
     {
-      QOpenGLFramebufferObjectFormat format;
-      format.setAttachment(QOpenGLFramebufferObject::Depth);
+      QMutexLocker m(&mutex_);
+      workFinished_ = false;
 
-      fbo_.reset(new QOpenGLFramebufferObject(size, format));
-    }
+      size = rect().size().toSize();
+      Q_ASSERT(!size.isEmpty());
 
-    Q_ASSERT(fbo_->isValid());
+      context_->makeCurrent(surface_.get());
 
-    fbo_->bind();
+      if (!fbo_ || (fbo_->size() != size))
+      {
+        QOpenGLFramebufferObjectFormat format;
+        format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-    //context_->functions()->glViewport(0, 0, size.width(), size.height());
+        fbo_.reset(new QOpenGLFramebufferObject(size, format));
+      }
+
+      Q_ASSERT(fbo_->isValid());
+
+      fbo_->bind();
+      //context_->functions()->glViewport(0, 0, size.width(), size.height());
 
 /*
-    {
-      QOpenGLPaintDevice opd(size);
-      QPainter painter(&opd);
+      {
+        QOpenGLPaintDevice opd(size);
+        QPainter painter(&opd);
 
-      painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
+        painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
 
-      painter.setPen(Qt::red);
-      painter.drawLine(0, 0, size.width(), size.height());
-    }
+        painter.setPen(Qt::red);
+        painter.drawLine(0, 0, size.width(), size.height());
+      }
 */
+    }
 
     {
       QQmlListReference const ref(item_, "resources");
@@ -107,11 +113,17 @@ public slots:
 
     context_->functions()->glFinish();
 
-    texture_.reset(item_->window()->createTextureFromId(fbo_->takeTexture(),
-        size,
-        QQuickWindow::TextureOwnsGLTexture
-      )
-    );
+    {
+      QMutexLocker m(&mutex_);
+
+      texture_.reset(item_->window()->createTextureFromId(fbo_->takeTexture(),
+          size,
+          QQuickWindow::TextureOwnsGLTexture
+        )
+      );
+
+      workFinished_ = true;
+    }
   }
 };
 
@@ -153,22 +165,19 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   {
     QMutexLocker l(&node->mutex_);
 
-    if (node->rect() == br)
+    if (node->texture_ && node->workFinished_)
     {
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-    }
-    else
-    {
-      node->setRect(br);
-    }
+      if (size().toSize() == node->rect().size().toSize())
+      {
+        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      }
 
-    if (node->texture_ &&
-      (node->texture_->textureSize() == size().toSize()))
-    {
-      node->setTexture(node->texture_.take());
+      if (node->texture_->textureSize() == size().toSize())
+      {
+        node->setTexture(node->texture_.take());
+      }
     }
-
-    if (!node->context_)
+    else if (!node->context_)
     {
       auto const w(window());
       Q_ASSERT(w);
@@ -198,11 +207,13 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       node->start();
 
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
         node, &TextureNode::shutdown, Qt::DirectConnection);
+
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
+
+    node->setRect(br);
   }
   else
   {

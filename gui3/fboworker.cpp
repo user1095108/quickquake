@@ -8,14 +8,15 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QMutex mutex_;
 
-  unsigned char i_{};
-
   QScopedPointer<QOffscreenSurface> surface_;
   QScopedPointer<QOpenGLContext> context_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
   QScopedPointer<QSGTexture> texture_;
+
+  unsigned char i_{};
+  bool workFinished_{};
 
   QQuickItem* item_;
 
@@ -65,41 +66,32 @@ public slots:
 
   void work()
   {
-    QMutexLocker m(&mutex_);
+    QSize size;
 
-    i_ = (i_ + 1) % 2;
-
-    auto const size(rect().size().toSize());
-    Q_ASSERT(!size.isEmpty());
-
-    context_->makeCurrent(surface_.get());
-
-    if (!fbo_[i_] || (fbo_[i_]->size() != size))
     {
-      QOpenGLFramebufferObjectFormat format;
-      format.setAttachment(QOpenGLFramebufferObject::Depth);
+      QMutexLocker m(&mutex_);
 
-      fbo_[i_].reset(new QOpenGLFramebufferObject(size, format));
+      i_ = (i_ + 1) % 2;
+      workFinished_ = false;
+
+      size = rect().size().toSize();
+      Q_ASSERT(!size.isEmpty());
+
+      context_->makeCurrent(surface_.get());
+
+      if (!fbo_[i_] || (fbo_[i_]->size() != size))
+      {
+        QOpenGLFramebufferObjectFormat format;
+        format.setAttachment(QOpenGLFramebufferObject::Depth);
+
+        fbo_[i_].reset(new QOpenGLFramebufferObject(size, format));
+      }
+
+      auto& fbo(*fbo_[i_]);
+      Q_ASSERT(fbo.isValid());
+
+      fbo.bind();
     }
-
-    auto& fbo(*fbo_[i_]);
-    Q_ASSERT(fbo.isValid());
-
-    fbo.bind();
-
-    //context_->functions()->glViewport(0, 0, size.width(), size.height());
-
-/*
-    {
-      QOpenGLPaintDevice opd(size);
-      QPainter painter(&opd);
-
-      painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
-
-      painter.setPen(Qt::red);
-      painter.drawLine(0, 0, size.width(), size.height());
-    }
-*/
 
     {
       QQmlListReference const ref(item_, "resources");
@@ -109,6 +101,12 @@ public slots:
         QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
           Q_ARG(QSize, size));
       }
+    }
+
+    {
+      QMutexLocker m(&mutex_);
+
+      workFinished_ = true;
     }
   }
 };
@@ -154,15 +152,16 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     QMutexLocker l(&node->mutex_);
 
-    node->setRect(br);
-
-    if (node->fbo_[node->i_])
+    if (node->fbo_[node->i_] && node->workFinished_)
     {
+      if (size().toSize() == node->rect().size().toSize())
+      {
+        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      }
+
       auto& fbo(*node->fbo_[node->i_]);
 
       node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
-
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
     else if (!node->context_)
     {
@@ -191,11 +190,13 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       node->start();
 
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
         node, &TextureNode::shutdown, Qt::DirectConnection);
+
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
+
+    node->setRect(br);
   }
   else
   {
