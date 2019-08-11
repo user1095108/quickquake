@@ -113,7 +113,9 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
   connect(this, &QQuickItem::visibleChanged,
     [&]()
     {
-      if (window())
+      auto const w(window());
+
+      if (w)
       {
         if (isVisible())
         {
