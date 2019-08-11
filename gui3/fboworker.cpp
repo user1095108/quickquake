@@ -8,8 +8,8 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QMutex mutex_;
 
-  QScopedPointer<QOffscreenSurface> surface_;
   QScopedPointer<QOpenGLContext> context_;
+  QOffscreenSurface surface_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
@@ -45,7 +45,7 @@ public slots:
 
       if (context_)
       {
-        context_->makeCurrent(surface_.get());
+        context_->makeCurrent(&surface_);
 
         QOpenGLFramebufferObject::bindDefault();
 
@@ -55,7 +55,6 @@ public slots:
         context_->doneCurrent();
 
         context_.reset();
-        surface_.reset();
       }
 
       exit();
@@ -75,7 +74,7 @@ public slots:
       size = rect().size().toSize();
       Q_ASSERT(!size.isEmpty());
 
-      context_->makeCurrent(surface_.get());
+      context_->makeCurrent(&surface_);
 
       if (!fbo_[i_] || (fbo_[i_]->size() != size))
       {
@@ -182,10 +181,10 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       node->context_->create();
       Q_ASSERT(node->context_->isValid());
 
-      node->surface_.reset(new QOffscreenSurface);
-      node->surface_->setFormat(f);
-      node->surface_->create();
-      Q_ASSERT(node->surface_->isValid());
+      node->surface_.setFormat(f);
+      node->surface_.destroy();
+      node->surface_.create();
+      Q_ASSERT(node->surface_.isValid());
 
       ccontext->makeCurrent(w);
 
