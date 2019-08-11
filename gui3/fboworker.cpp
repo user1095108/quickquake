@@ -115,16 +115,18 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
   connect(this, &QQuickItem::visibleChanged,
     [&]()
     {
-      Q_ASSERT(window());
-      if (isVisible())
+      if (window())
       {
-        connect(window(), &QQuickWindow::frameSwapped,
-          this, &FBOWorker::update, Qt::DirectConnection);
-      }
-      else
-      {
-        disconnect(window(), &QQuickWindow::frameSwapped,
-          this, &FBOWorker::update);
+        if (isVisible())
+        {
+          connect(window(), &QQuickWindow::frameSwapped,
+            this, &FBOWorker::update, Qt::DirectConnection);
+        }
+        else
+        {
+          disconnect(window(), &QQuickWindow::frameSwapped,
+            this, &FBOWorker::update);
+        }
       }
     }
   );
@@ -223,8 +225,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     auto const w(window());
     Q_ASSERT(w);
 
-    connect(w, &QQuickWindow::frameSwapped,
-      this, &FBOWorker::update, Qt::DirectConnection);
+    if (isVisible())
+    {
+      connect(w, &QQuickWindow::frameSwapped,
+        this, &FBOWorker::update, Qt::DirectConnection);
+    }
+
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
   }
