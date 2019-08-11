@@ -1,3 +1,5 @@
+#include <atomic>
+
 #include "fboworker.hpp"
 
 class TextureNode : public QThread, public QSGSimpleTextureNode
@@ -14,7 +16,7 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
 
   unsigned char i_{};
-  bool workFinished_{};
+  std::atomic<bool> workFinished_{};
 
   QQuickItem* item_;
 
@@ -68,7 +70,7 @@ public slots:
     {
       QMutexLocker m(&mutex_);
 
-      Q_ASSERT(!workFinished_);
+      Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
       i_ = (i_ + 1) % 2;
 
       size = rect().size().toSize();
@@ -98,11 +100,7 @@ public slots:
       }
     }
 
-    {
-      QMutexLocker m(&mutex_);
-
-      workFinished_ = true;
-    }
+    workFinished_.store(true, std::memory_order_relaxed);
   }
 };
 
@@ -166,11 +164,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     QMutexLocker l(&node->mutex_);
 
-    if (node->fbo_[node->i_] && node->workFinished_)
+    if (node->fbo_[node->i_] &&
+      node->workFinished_.load(std::memory_order_relaxed))
     {
       if (size().toSize() == node->rect().size().toSize())
       {
-        node->workFinished_ = false;
+        node->workFinished_.store(false, std::memory_order_relaxed);
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }
