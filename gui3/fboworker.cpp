@@ -158,33 +158,31 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     return nullptr;
   }
 
+  auto const w(window());
+  Q_ASSERT(w);
+
   auto node(static_cast<TextureNode*>(n));
 
-  if (node)
+  if (!node)
   {
-    auto const w(window());
-    Q_ASSERT(w);
+    node = new TextureNode(this);
 
+    if (isVisible())
+    {
+      connect(w, &QQuickWindow::frameSwapped,
+        this, &FBOWorker::update, Qt::DirectConnection);
+    }
+
+    connect(w, &QQuickWindow::sceneGraphInvalidated,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
+  }
+
+  {
     QMutexLocker l(&node->mutex_);
 
-    if (node->fbo_[node->i_] &&
-      node->workFinished_.load(std::memory_order_relaxed))
-    {
-      if (size().toSize() == node->rect().size().toSize())
-      {
-        node->workFinished_.store(false, std::memory_order_relaxed);
+    node->setRect(br);
 
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
-
-      auto& fbo(*node->fbo_[node->i_]);
-
-      if (fbo.texture() != uint(node->texture()->textureId()))
-      {
-        node->setTexture(w->createTextureFromId(fbo.texture(), fbo.size()));
-      }
-    }
-    else if (!node->context_)
+    if (!node->context_)
     {
       auto const ccontext(w->openglContext());
       Q_ASSERT(ccontext);
@@ -215,25 +213,27 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-
-    node->setRect(br);
-  }
-  else
-  {
-    node = new TextureNode(this);
-    node->setRect(br);
-
-    auto const w(window());
-    Q_ASSERT(w);
-
-    if (isVisible())
+    else if (node->workFinished_.load(std::memory_order_relaxed))
     {
-      connect(w, &QQuickWindow::frameSwapped,
-        this, &FBOWorker::update, Qt::DirectConnection);
-    }
+      Q_ASSERT(node->fbo_[node->i_]);
+      if (size().toSize() == node->rect().size().toSize())
+      {
+        node->workFinished_.store(false, std::memory_order_relaxed);
 
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
+        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      }
+
+      {
+        auto& fbo(*node->fbo_[node->i_]);
+
+        auto const texture(fbo.texture());
+
+        if (texture != uint(node->texture()->textureId()))
+        {
+          node->setTexture(w->createTextureFromId(texture, fbo.size()));
+        }
+      }
+    }
   }
 
   return node;
