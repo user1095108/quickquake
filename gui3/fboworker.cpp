@@ -74,7 +74,7 @@ public slots:
       Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
       i_ = (i_ + 1) % 2;
 
-      size = rect().size().toSize();
+      size = (rect().size() * item_->window()->devicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
 
       context_->makeCurrent(&surface_);
@@ -180,8 +180,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   {
     QMutexLocker l(&node->mutex_);
 
-    node->setRect(br);
-
     if (!node->context_)
     {
       auto const ccontext(w->openglContext());
@@ -216,6 +214,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     else if (node->workFinished_.load(std::memory_order_relaxed))
     {
       Q_ASSERT(node->fbo_[node->i_]);
+
       if (size().toSize() == node->rect().size().toSize())
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
@@ -225,7 +224,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       {
         auto& fbo(*node->fbo_[node->i_]);
-
         auto const texture(fbo.texture());
 
         if (texture != uint(node->texture()->textureId()))
@@ -234,6 +232,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         }
       }
     }
+
+    node->setRect(br);
   }
 
   return node;
