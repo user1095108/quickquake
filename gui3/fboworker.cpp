@@ -74,7 +74,8 @@ public slots:
       Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
       i_ = (i_ + 1) % 2;
 
-      size = (rect().size() * item_->window()->devicePixelRatio()).toSize();
+      size = (rect().size() *
+        item_->window()->effectiveDevicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
 
       context_->makeCurrent(&surface_);
