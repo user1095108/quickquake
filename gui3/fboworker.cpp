@@ -57,6 +57,7 @@ public slots:
         context_->doneCurrent();
 
         context_.reset();
+        surface_.destroy();
       }
 
       exit();
@@ -202,7 +203,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       Q_ASSERT(node->context_->isValid());
 
       node->surface_.setFormat(f);
-      node->surface_.destroy();
       node->surface_.create();
       Q_ASSERT(node->surface_.isValid());
 
