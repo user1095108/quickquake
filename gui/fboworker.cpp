@@ -178,17 +178,25 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
   auto node(static_cast<TextureNode*>(n));
 
-  if (node)
+  if (!node)
+  {
+    node = new TextureNode(this);
+    node->setRect(br);
+
+    if (isVisible())
+    {
+      connect(w, &QQuickWindow::frameSwapped,
+        this, &FBOWorker::update, Qt::DirectConnection);
+    }
+
+    connect(w, &QQuickWindow::sceneGraphInvalidated,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
+  }
+
   {
     QMutexLocker l(&node->mutex_);
 
-    if (node->texture_ && (size().toSize() == node->rect().size().toSize()))
-    {
-      node->setTexture(node->texture_.take());
-
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-    }
-    else if (!node->context_)
+    if (!node->context_)
     {
       auto const ccontext(w->openglContext());
       Q_ASSERT(ccontext);
@@ -220,22 +228,15 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-
-    node->setRect(br);
-  }
-  else
-  {
-    node = new TextureNode(this);
-    node->setRect(br);
-
-    if (isVisible())
+    else if (node->texture_ &&
+      (size().toSize() == node->rect().size().toSize()))
     {
-      connect(w, &QQuickWindow::frameSwapped,
-        this, &FBOWorker::update, Qt::DirectConnection);
+      node->setTexture(node->texture_.take());
+
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
 
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
+    node->setRect(br);
   }
 
   return node;

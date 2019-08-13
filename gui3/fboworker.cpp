@@ -162,7 +162,20 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
   auto node(static_cast<TextureNode*>(n));
 
-  if (node)
+  if (!node)
+  {
+    node = new TextureNode(this);
+
+    if (isVisible())
+    {
+      connect(w, &QQuickWindow::frameSwapped,
+        this, &FBOWorker::update, Qt::DirectConnection);
+    }
+
+    connect(w, &QQuickWindow::sceneGraphInvalidated,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
+  }
+
   {
     QMutexLocker l(&node->mutex_);
 
@@ -220,20 +233,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     }
 
     node->setRect(br);
-  }
-  else
-  {
-    node = new TextureNode(this);
-    node->setRect(br);
-
-    if (isVisible())
-    {
-      connect(w, &QQuickWindow::frameSwapped,
-        this, &FBOWorker::update, Qt::DirectConnection);
-    }
-
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
   }
 
   return node;
