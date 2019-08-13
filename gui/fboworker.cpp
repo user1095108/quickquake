@@ -154,6 +154,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     return nullptr;
   }
 
+  auto const w(window());
+  Q_ASSERT(w);
+
   auto node(static_cast<TextureNode*>(n));
 
   if (node)
@@ -168,9 +171,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     }
     else if (!node->context_)
     {
-      auto const w(window());
-      Q_ASSERT(w);
-
       auto const ccontext(w->openglContext());
       Q_ASSERT(ccontext);
 
@@ -209,11 +209,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     node = new TextureNode(this);
     node->setRect(br);
 
-    auto const w(window());
-    Q_ASSERT(w);
+    if (isVisible())
+    {
+      connect(w, &QQuickWindow::frameSwapped,
+        this, &FBOWorker::update, Qt::DirectConnection);
+    }
 
-    connect(w, &QQuickWindow::frameSwapped,
-      this, &FBOWorker::update, Qt::DirectConnection);
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
   }
