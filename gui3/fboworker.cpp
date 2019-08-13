@@ -121,12 +121,12 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
       {
         if (isVisible())
         {
-          connect(window(), &QQuickWindow::frameSwapped,
+          connect(w, &QQuickWindow::frameSwapped,
             this, &FBOWorker::update, Qt::DirectConnection);
         }
         else
         {
-          disconnect(window(), &QQuickWindow::frameSwapped,
+          disconnect(w, &QQuickWindow::frameSwapped,
             this, &FBOWorker::update);
         }
       }

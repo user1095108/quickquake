@@ -127,6 +127,27 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
   QQuickItem(parent)
 {
   setFlag(ItemHasContents);
+
+  connect(this, &QQuickItem::visibleChanged,
+    [&]()
+    {
+      auto const w(window());
+
+      if (w)
+      {
+        if (isVisible())
+        {
+          connect(w, &QQuickWindow::frameSwapped,
+            this, &FBOWorker::update, Qt::DirectConnection);
+        }
+        else
+        {
+          disconnect(w, &QQuickWindow::frameSwapped,
+            this, &FBOWorker::update);
+        }
+      }
+    }
+  );
 }
 
 //////////////////////////////////////////////////////////////////////////////
