@@ -170,9 +170,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
   if (br.isEmpty())
   {
-    delete n;
-
-    return nullptr;
+    return delete n, nullptr;
   }
 
   auto const w(window());
