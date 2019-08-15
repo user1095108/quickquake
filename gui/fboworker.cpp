@@ -67,7 +67,8 @@ public slots:
     {
       QMutexLocker m(&mutex_);
 
-      size = rect().size().toSize();
+      size = (rect().size() *
+        item_->window()->effectiveDevicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
 
       context_->makeCurrent(surface_.get());
