@@ -111,27 +111,6 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
   QQuickItem(parent)
 {
   setFlag(ItemHasContents);
-
-  connect(this, &QQuickItem::visibleChanged,
-    [&]()
-    {
-      auto const w(window());
-
-      if (w)
-      {
-        if (isVisible())
-        {
-          connect(w, &QQuickWindow::frameSwapped,
-            this, &FBOWorker::update, Qt::QueuedConnection);
-        }
-        else
-        {
-          disconnect(w, &QQuickWindow::frameSwapped,
-            this, &FBOWorker::update);
-        }
-      }
-    }
-  );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -165,12 +144,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   if (!node)
   {
     node = new TextureNode(this);
-
-    if (isVisible())
-    {
-      connect(w, &QQuickWindow::frameSwapped,
-        this, &FBOWorker::update, Qt::QueuedConnection);
-    }
 
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
@@ -231,6 +204,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         }
       }
     }
+
+    update();
 
     node->setRect(br);
   }
