@@ -205,9 +205,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       }
     }
 
-    update();
-
     node->setRect(br);
+
+    update();
   }
 
   return node;
