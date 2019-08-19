@@ -187,7 +187,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     {
       Q_ASSERT(node->fbo_[node->i_]);
 
-      //if (size().toSize() == node->rect().size().toSize())
+      if (size().toSize() == node->rect().size().toSize())
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
 
