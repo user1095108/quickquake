@@ -139,7 +139,7 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
         if (isVisible())
         {
           connect(w, &QQuickWindow::frameSwapped,
-            this, &FBOWorker::update, Qt::DirectConnection);
+            this, &FBOWorker::update, Qt::QueuedConnection);
         }
         else
         {
@@ -187,7 +187,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (isVisible())
     {
       connect(w, &QQuickWindow::frameSwapped,
-        this, &FBOWorker::update, Qt::DirectConnection);
+        this, &FBOWorker::update, Qt::QueuedConnection);
     }
 
     connect(w, &QQuickWindow::sceneGraphInvalidated,
