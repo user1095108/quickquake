@@ -14,6 +14,7 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   QOffscreenSurface surface_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
+  QScopedPointer<QSGTexture> textures_[2];
 
   unsigned char i_{};
   std::atomic<bool> workFinished_{};
@@ -26,7 +27,6 @@ public:
     item_(item)
   {
     setFiltering(QSGTexture::Nearest);
-    setOwnsTexture(true);
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 
     setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
@@ -86,6 +86,8 @@ public slots:
         format.setAttachment(QOpenGLFramebufferObject::Depth);
 
         fbo_[i_].reset(new QOpenGLFramebufferObject(size, format));
+        textures_[i_].reset(item_->window()->
+          createTextureFromId(fbo_[i_]->texture(), size));
       }
 
       Q_ASSERT(fbo_[i_]->isValid());
@@ -202,7 +204,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
         if (texture != uint(node->texture()->textureId()))
         {
-          node->setTexture(w->createTextureFromId(texture, fbo.size()));
+          node->setTexture(node->textures_[node->i_].get());
         }
       }
     }
