@@ -13,8 +13,11 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   QScopedPointer<QOpenGLContext> context_;
   QOffscreenSurface surface_;
 
-  QScopedPointer<QOpenGLFramebufferObject> fbo_[2];
-  QScopedPointer<QSGTexture> textures_[2];
+  struct
+  {
+    QScopedPointer<QOpenGLFramebufferObject> fbo;
+    QScopedPointer<QSGTexture> texture;
+  } fbo_[2];
 
   unsigned char i_{};
   std::atomic<bool> workFinished_{};
@@ -51,8 +54,8 @@ public slots:
 
         QOpenGLFramebufferObject::bindDefault();
 
-        fbo_[0].reset();
-        fbo_[1].reset();
+        fbo_[0].fbo.reset();
+        fbo_[1].fbo.reset();
 
         context_->doneCurrent();
 
@@ -80,18 +83,18 @@ public slots:
 
       context_->makeCurrent(&surface_);
 
-      if (!fbo_[i_] || (fbo_[i_]->size() != size))
+      if (!fbo_[i_].fbo || (fbo_[i_].fbo->size() != size))
       {
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-        fbo_[i_].reset(new QOpenGLFramebufferObject(size, format));
-        textures_[i_].reset(item_->window()->
-          createTextureFromId(fbo_[i_]->texture(), size));
+        fbo_[i_].fbo.reset(new QOpenGLFramebufferObject(size, format));
+        fbo_[i_].texture.reset(item_->window()->
+          createTextureFromId(fbo_[i_].fbo->texture(), size));
       }
 
-      Q_ASSERT(fbo_[i_]->isValid());
-      fbo_[i_]->bind();
+      Q_ASSERT(fbo_[i_].fbo->isValid());
+      fbo_[i_].fbo->bind();
     }
 
     {
@@ -189,7 +192,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     }
     else if (node->workFinished_.load(std::memory_order_relaxed))
     {
-      Q_ASSERT(node->fbo_[node->i_]);
+      Q_ASSERT(node->fbo_[node->i_].fbo);
 
       if (size().toSize() == node->rect().size().toSize())
       {
@@ -198,14 +201,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }
 
-      {
-        auto const texture(node->fbo_[node->i_]->texture());
-
-        if (texture != uint(node->texture()->textureId()))
-        {
-          node->setTexture(node->textures_[node->i_].get());
-        }
-      }
+      node->setTexture(node->fbo_[node->i_].texture.get());
     }
 
     node->setRect(br);
