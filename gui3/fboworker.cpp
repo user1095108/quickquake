@@ -199,8 +199,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       }
 
       {
-        auto& fbo(*node->fbo_[node->i_]);
-        auto const texture(fbo.texture());
+        auto const texture(node->fbo_[node->i_]->texture());
 
         if (texture != uint(node->texture()->textureId()))
         {
