@@ -83,14 +83,14 @@ public slots:
 
       context_->makeCurrent(&surface_);
 
-      if (!fbo_[i_].fbo || (fbo_[i_].fbo->size() != size))
+      if (auto& fbo(fbo_[i_]); !fbo.fbo || (fbo.fbo->size() != size))
       {
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-        fbo_[i_].fbo.reset(new QOpenGLFramebufferObject(size, format));
-        fbo_[i_].texture.reset(item_->window()->
-          createTextureFromId(fbo_[i_].fbo->texture(), size));
+        fbo.fbo.reset(new QOpenGLFramebufferObject(size, format));
+        fbo.texture.reset(item_->window()->
+          createTextureFromId(fbo.fbo->texture(), size));
       }
 
       Q_ASSERT(fbo_[i_].fbo->isValid());
