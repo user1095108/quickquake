@@ -188,12 +188,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       ccontext->makeCurrent(w);
 
+      connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
+        node, &TextureNode::shutdown, Qt::DirectConnection);
+
       node->start();
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-
-      connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-        node, &TextureNode::shutdown, Qt::DirectConnection);
     }
     else if (node->workFinished_.load(std::memory_order_relaxed))
     {

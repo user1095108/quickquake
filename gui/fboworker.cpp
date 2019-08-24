@@ -8,7 +8,7 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   QMutex mutex_;
 
-  QScopedPointer<QOffscreenSurface> surface_;
+  QOffscreenSurface surface_;
   QScopedPointer<QOpenGLContext> context_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_;
@@ -44,7 +44,7 @@ public slots:
 
       if (context_)
       {
-        context_->makeCurrent(surface_.get());
+        context_->makeCurrent(&surface_);
 
         QOpenGLFramebufferObject::bindDefault();
 
@@ -53,7 +53,7 @@ public slots:
         context_->doneCurrent();
 
         context_.reset();
-        surface_.reset();
+        surface_.destroy();
       }
 
       exit();
@@ -71,7 +71,7 @@ public slots:
         item_->window()->effectiveDevicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
 
-      context_->makeCurrent(surface_.get());
+      context_->makeCurrent(&surface_);
 
       if (!fbo_ || (fbo_->size() != size))
       {
@@ -181,24 +181,28 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       auto f(ccontext->format());
       f.setProfile(contextProfile_);
 
-      node->context_.reset(new QOpenGLContext);
+      {
+        node->context_.reset(new QOpenGLContext);
+        auto& context(*node->context_);
 
-      node->context_->setFormat(f);
-      node->context_->setShareContext(ccontext);
-      node->context_->create();
-      Q_ASSERT(node->context_->isValid());
+        context.setFormat(f);
+        context.setShareContext(ccontext);
+        context.create();
+        Q_ASSERT(node->context_->isValid());
 
-      node->surface_.reset(new QOffscreenSurface);
-      node->surface_->setFormat(f);
-      node->surface_->create();
-      Q_ASSERT(node->surface_->isValid());
+        auto& surface(node->surface_);
+
+        surface.setFormat(f);
+        surface.create();
+        Q_ASSERT(surface.isValid());
+      }
 
       ccontext->makeCurrent(w);
 
-      node->start();
-
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
         node, &TextureNode::shutdown, Qt::DirectConnection);
+
+      node->start();
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
