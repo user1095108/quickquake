@@ -188,7 +188,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         context.setFormat(f);
         context.setShareContext(ccontext);
         context.create();
-        Q_ASSERT(node->context_->isValid());
+        Q_ASSERT(context.isValid());
 
         auto& surface(node->surface_);
 
