@@ -35,7 +35,6 @@ public:
     wait();
   }
 
-public slots:
   void shutdown() noexcept
   {
     if (isRunning())
@@ -60,7 +59,7 @@ public slots:
     }
   }
 
-  void work()
+  Q_INVOKABLE void work()
   {
     QSize size;
 
