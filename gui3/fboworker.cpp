@@ -26,7 +26,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
 public:
   explicit TextureNode(QQuickItem* const item) :
-    QThread(item),
     item_(item)
   {
     setFiltering(QSGTexture::Nearest);
