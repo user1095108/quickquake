@@ -205,10 +205,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       if (node->rect() == br)
       {
+        // if work is finished then contents of node->fbo_[node->i_] are valid
         node->workFinished_.store(false, std::memory_order_relaxed);
 
-        // if work is finished then contents of node->fbo_[node->i_] are valid
-        node->setRect(br);
         node->setTexture(node->fbo_[node->i_].texture.get());
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);

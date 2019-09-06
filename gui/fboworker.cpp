@@ -203,17 +203,18 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else if (node->texture_ &&
-      (size().toSize() == node->rect().size().toSize()))
+    else if (node->texture_)
     {
-      node->setTexture(node->texture_.take());
-      node->setRect(br);
+      if (br == node->rect())
+      {
+        node->setTexture(node->texture_.take());
 
-      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-    }
-    else
-    {
-      node->setRect(br);
+        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      }
+      else
+      {
+        node->setRect(br);
+      }
     }
 
     update();
