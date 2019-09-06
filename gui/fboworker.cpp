@@ -65,7 +65,7 @@ public:
     {
       QMutexLocker m(&mutex_);
 
-      size = (rect().size() *
+      size = (item_->size() *
         item_->window()->effectiveDevicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
 
@@ -159,7 +159,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   if (!node)
   {
     node = new TextureNode(this);
-    node->setRect(br);
 
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
@@ -208,11 +207,14 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       (size().toSize() == node->rect().size().toSize()))
     {
       node->setTexture(node->texture_.take());
+      node->setRect(br);
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-
-    node->setRect(br);
+    else
+    {
+      node->setRect(br);
+    }
 
     update();
   }

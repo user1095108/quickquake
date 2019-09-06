@@ -81,7 +81,7 @@ public:
       Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
       i_ = (i_ + 1) % 2;
 
-      size = (rect().size() *
+      size = (item_->size() *
         item_->window()->effectiveDevicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
 
@@ -196,8 +196,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         node, &TextureNode::shutdown, Qt::DirectConnection);
 
       node->start();
-
-      node->setRect(br);
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
