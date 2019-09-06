@@ -207,7 +207,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
 
-        // if work is finished then node->fbo_[node->i_] are valid
+        // if work is finished then contents of node->fbo_[node->i_] are valid
         node->setRect(br);
         node->setTexture(node->fbo_[node->i_].texture.get());
 
