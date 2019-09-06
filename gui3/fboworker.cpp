@@ -195,8 +195,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
         node, &TextureNode::shutdown, Qt::DirectConnection);
 
-      node->setRect(br);
       node->start();
+
+      node->setRect(br);
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
