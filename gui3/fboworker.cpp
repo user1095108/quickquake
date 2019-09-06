@@ -195,6 +195,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
         node, &TextureNode::shutdown, Qt::DirectConnection);
 
+      node->setRect(br);
       node->start();
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
@@ -203,22 +204,21 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     {
       Q_ASSERT(node->fbo_[node->i_].fbo);
 
-      if (size().toSize() == node->rect().size().toSize())
+      if (node->rect() == br)
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
 
         // if work is finished then node->fbo_[node->i_] are valid
+        node->setRect(br);
         node->setTexture(node->fbo_[node->i_].texture.get());
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }
       else
       {
-        node->markDirty(QSGNode::DirtyMaterial);
+        node->setRect(br);
       }
     }
-
-    node->setRect(br);
   }
 
   update();
