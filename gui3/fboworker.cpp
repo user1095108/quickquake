@@ -17,6 +17,12 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   {
     QScopedPointer<QOpenGLFramebufferObject> fbo;
     QScopedPointer<QSGTexture> texture;
+
+    void reset()
+    {
+      fbo.reset();
+      texture.reset();
+    }
   } fbo_[2];
 
   unsigned char i_{};
@@ -52,8 +58,8 @@ public:
 
         QOpenGLFramebufferObject::bindDefault();
 
-        fbo_[0].fbo.reset();
-        fbo_[1].fbo.reset();
+        fbo_[0].reset();
+        fbo_[1].reset();
 
         context_->doneCurrent();
 
@@ -201,10 +207,15 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
 
+        // if work is finished then node->fbo_[node->i_] are valid
+        node->setTexture(node->fbo_[node->i_].texture.get());
+
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }
-
-      node->setTexture(node->fbo_[node->i_].texture.get());
+      else
+      {
+        node->markDirty(QSGNode::DirtyMaterial);
+      }
     }
 
     node->setRect(br);
