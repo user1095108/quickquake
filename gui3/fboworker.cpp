@@ -187,9 +187,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   }
   else if (node->workFinished_.load(std::memory_order_relaxed))
   {
-    // if work is finished then contents of node->fbo_[node->i_] are valid
-    Q_ASSERT(node->fbo_[node->i_].fbo);
-
     if (node->rect() == br)
     {
       node->workFinished_.store(false, std::memory_order_relaxed);
