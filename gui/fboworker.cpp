@@ -9,8 +9,8 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   std::atomic<bool> workFinished_{};
   QScopedPointer<QSGTexture> texture_;
 
-  QOffscreenSurface surface_;
   QScopedPointer<QOpenGLContext> context_;
+  QOffscreenSurface surface_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_;
 

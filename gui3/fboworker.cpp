@@ -9,7 +9,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
   Q_OBJECT
 
   std::atomic<bool> workFinished_{};
-
   unsigned char i_{};
 
   struct
