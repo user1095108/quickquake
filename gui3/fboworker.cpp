@@ -53,17 +53,11 @@ public:
 
       if (context_)
       {
-        context_->makeCurrent(&surface_);
-
-        QOpenGLFramebufferObject::bindDefault();
+        context_.reset();
+        surface_.destroy();
 
         fbo_[0].reset();
         fbo_[1].reset();
-
-        context_->doneCurrent();
-
-        context_.reset();
-        surface_.destroy();
       }
     }
   }
