@@ -142,8 +142,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   {
     node = new TextureNode(this);
 
-//  connect(w, &QQuickWindow::frameSwapped,
-//    this, &QQuickItem::update, Qt::QueuedConnection);
     connect(w, &QQuickWindow::sceneGraphInvalidated,
       node, &TextureNode::shutdown, Qt::DirectConnection);
   }
