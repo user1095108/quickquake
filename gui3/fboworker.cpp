@@ -99,6 +99,8 @@ public:
       }
     }
 
+    context_->functions()->glFlush();
+
     workFinished_.store(true, std::memory_order_relaxed);
   }
 };
