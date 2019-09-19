@@ -97,7 +97,7 @@ public:
       }
     }
 
-    //context_->functions()->glFinish();
+    context_->functions()->glFinish();
 
     texture_.reset(
       item_->window()->createTextureFromId(fbo_->takeTexture(),
@@ -133,80 +133,80 @@ void FBOWorker::setContextProfile(
 QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   QQuickItem::UpdatePaintNodeData*)
 {
-  auto const br(boundingRect());
-
-  if (br.isEmpty())
+  if (auto const br(boundingRect()); br.isEmpty())
   {
     return delete n, nullptr;
   }
-
-  auto const w(window());
-  Q_ASSERT(w);
-
-  auto node(static_cast<TextureNode*>(n));
-
-  if (!node)
+  else
   {
-    node = new TextureNode(this);
+    auto const w(window());
+    Q_ASSERT(w);
 
-    connect(w, &QQuickWindow::sceneGraphInvalidated,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
-  }
+    auto node(static_cast<TextureNode*>(n));
 
-  if (!node->context_)
-  {
-    auto const ccontext(w->openglContext());
-    Q_ASSERT(ccontext);
-
-    // this is done to safely share context resources
-    ccontext->doneCurrent();
-
-    auto f(ccontext->format());
-    f.setProfile(contextProfile_);
-
+    if (!node)
     {
-      node->context_.reset(new QOpenGLContext);
-      auto& context(*node->context_);
+      node = new TextureNode(this);
 
-      context.setFormat(f);
-      context.setShareContext(ccontext);
-      context.create();
-      Q_ASSERT(context.isValid());
-
-      auto& surface(node->surface_);
-
-      surface.setFormat(f);
-      surface.create();
-      Q_ASSERT(surface.isValid());
+      connect(w, &QQuickWindow::sceneGraphInvalidated,
+        node, &TextureNode::shutdown, Qt::DirectConnection);
     }
 
-    ccontext->makeCurrent(w);
-
-    connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-      node, &TextureNode::shutdown, Qt::DirectConnection);
-
-    node->start();
-
-    QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-  }
-  else if (node->rect() == br)
-  {
-    if (node->workFinished_.load(std::memory_order_relaxed))
+    if (!node->context_)
     {
-      node->workFinished_.store(false, std::memory_order_relaxed);
-      node->setTexture(node->texture_.take());
+      auto const ccontext(w->openglContext());
+      Q_ASSERT(ccontext);
+
+      // this is done to safely share context resources
+      ccontext->doneCurrent();
+
+      auto f(ccontext->format());
+      f.setProfile(contextProfile_);
+
+      {
+        node->context_.reset(new QOpenGLContext);
+        auto& context(*node->context_);
+
+        context.setFormat(f);
+        context.setShareContext(ccontext);
+        context.create();
+        Q_ASSERT(context.isValid());
+
+        auto& surface(node->surface_);
+
+        surface.setFormat(f);
+        surface.create();
+        Q_ASSERT(surface.isValid());
+      }
+
+      ccontext->makeCurrent(w);
+
+      connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
+        node, &TextureNode::shutdown, Qt::DirectConnection);
+
+      node->start();
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-  }
-  else
-  {
-    node->setRect(br);
-  }
+    else if (node->rect() == br)
+    {
+      if (node->workFinished_.load(std::memory_order_relaxed))
+      {
+        node->workFinished_.store(false, std::memory_order_relaxed);
+        node->setTexture(node->texture_.take());
 
-  update();
+        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+      }
+    }
+    else
+    {
+      node->setRect(br);
+    }
 
-  return node;
+    update();
+
+    return node;
+  }
 }
 
 #include "fboworker.moc"
