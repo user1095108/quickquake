@@ -99,6 +99,11 @@ public:
     context_->functions()->glFlush();
 
     workFinished_.store(true, std::memory_order_relaxed);
+
+    if (item_->isVisible())
+    {
+      QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
+    }
   }
 };
 
@@ -107,6 +112,17 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
   QQuickItem(parent)
 {
   setFlag(ItemHasContents);
+
+  connect(this, &QQuickItem::visibleChanged,
+    this,
+    [&]()
+    {
+      if (isVisible())
+      {
+        update();
+      }
+    }
+  );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -193,9 +209,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     else
     {
       node->setRect(br);
-    }
 
-    update();
+      if (isVisible())
+      {
+        update();
+      }
+    }
 
     return node;
   }

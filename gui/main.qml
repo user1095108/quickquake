@@ -18,7 +18,20 @@ Item {
 
     rotation: rotslider.value
 
+    visible: checkbox.checked
+
     GLQuake {}
+  }
+
+  CheckBox {
+    id: checkbox
+
+    anchors.right: parent.right
+
+    y: 5
+
+    checked: true
+    text: "Visible"
   }
 
   ColumnLayout {
