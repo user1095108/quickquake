@@ -24,8 +24,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
     }
   } fbo_[2];
 
-  QMutex mutex_;
-
   QScopedPointer<QOpenGLContext> context_;
   QOffscreenSurface surface_;
 
@@ -44,7 +42,6 @@ public:
   ~TextureNode() noexcept
   {
     shutdown();
-    wait();
   }
 
   void shutdown() noexcept
@@ -52,8 +49,7 @@ public:
     if (isRunning())
     {
       exit();
-
-      QMutexLocker m(&mutex_);
+      wait();
 
       if (context_)
       {
@@ -78,8 +74,6 @@ public:
     QSize size;
 
     {
-      QMutexLocker m(&mutex_);
-
       i_ = (i_ + 1) % 2;
 
       size = (item_->size() *

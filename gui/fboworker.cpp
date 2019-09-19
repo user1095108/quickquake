@@ -6,8 +6,6 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   friend class FBOWorker;
 
-  QMutex mutex_;
-
   std::atomic<bool> workFinished_{};
   QScopedPointer<QSGTexture> texture_;
 
@@ -32,7 +30,6 @@ public:
   ~TextureNode() noexcept
   {
     shutdown();
-    wait();
   }
 
   void shutdown() noexcept
@@ -40,8 +37,7 @@ public:
     if (isRunning())
     {
       exit();
-
-      QMutexLocker m(&mutex_);
+      wait();
 
       if (context_)
       {
@@ -65,8 +61,6 @@ public:
     QSize size;
 
     {
-      QMutexLocker m(&mutex_);
-
       size = (item_->size() *
         item_->window()->effectiveDevicePixelRatio()).toSize();
       Q_ASSERT(!size.isEmpty());
