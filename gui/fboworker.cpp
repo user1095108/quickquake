@@ -24,7 +24,7 @@ public:
     setOwnsTexture(true);
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
 
-    setTexture(item_->window()->createTextureFromId(0, QSize(1, 1)));
+    setTexture(item_->window()->createTextureFromId(0, QSize()));
   }
 
   ~TextureNode() noexcept
