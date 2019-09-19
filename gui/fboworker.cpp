@@ -39,6 +39,8 @@ public:
   {
     if (isRunning())
     {
+      exit();
+
       QMutexLocker m(&mutex_);
 
       if (context_)
@@ -54,8 +56,6 @@ public:
         context_.reset();
         surface_.destroy();
       }
-
-      exit();
     }
   }
 
@@ -165,60 +165,58 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       node, &TextureNode::shutdown, Qt::DirectConnection);
   }
 
+  if (!node->context_)
   {
-    if (!node->context_)
+    auto const ccontext(w->openglContext());
+    Q_ASSERT(ccontext);
+
+    // this is done to safely share context resources
+    ccontext->doneCurrent();
+
+    auto f(ccontext->format());
+    f.setProfile(contextProfile_);
+
     {
-      auto const ccontext(w->openglContext());
-      Q_ASSERT(ccontext);
+      node->context_.reset(new QOpenGLContext);
+      auto& context(*node->context_);
 
-      // this is done to safely share context resources
-      ccontext->doneCurrent();
+      context.setFormat(f);
+      context.setShareContext(ccontext);
+      context.create();
+      Q_ASSERT(context.isValid());
 
-      auto f(ccontext->format());
-      f.setProfile(contextProfile_);
+      auto& surface(node->surface_);
 
-      {
-        node->context_.reset(new QOpenGLContext);
-        auto& context(*node->context_);
+      surface.setFormat(f);
+      surface.create();
+      Q_ASSERT(surface.isValid());
+    }
 
-        context.setFormat(f);
-        context.setShareContext(ccontext);
-        context.create();
-        Q_ASSERT(context.isValid());
+    ccontext->makeCurrent(w);
 
-        auto& surface(node->surface_);
+    connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
 
-        surface.setFormat(f);
-        surface.create();
-        Q_ASSERT(surface.isValid());
-      }
+    node->start();
 
-      ccontext->makeCurrent(w);
-
-      connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-        node, &TextureNode::shutdown, Qt::DirectConnection);
-
-      node->start();
+    QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+  }
+  else if (node->workFinished_.load(std::memory_order_relaxed))
+  {
+    if (br == node->rect())
+    {
+      node->workFinished_.store(false, std::memory_order_relaxed);
+      node->setTexture(node->texture_.take());
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else if (node->workFinished_.load(std::memory_order_relaxed))
+    else
     {
-      if (br == node->rect())
-      {
-        node->workFinished_.store(false, std::memory_order_relaxed);
-        node->setTexture(node->texture_.take());
-
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
-      else
-      {
-        node->setRect(br);
-      }
+      node->setRect(br);
     }
-
-    update();
   }
+
+  update();
 
   return node;
 }

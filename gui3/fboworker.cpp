@@ -51,6 +51,8 @@ public:
   {
     if (isRunning())
     {
+      exit();
+
       QMutexLocker m(&mutex_);
 
       if (context_)
@@ -67,8 +69,6 @@ public:
         context_.reset();
         surface_.destroy();
       }
-
-      exit();
     }
   }
 
