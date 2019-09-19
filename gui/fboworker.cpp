@@ -2,18 +2,19 @@
 
 class TextureNode : public QThread, public QSGSimpleTextureNode
 {
-  friend class FBOWorker;
-
   Q_OBJECT
 
+  friend class FBOWorker;
+
   QMutex mutex_;
+
+  std::atomic<bool> workFinished_{};
+  QScopedPointer<QSGTexture> texture_;
 
   QOffscreenSurface surface_;
   QScopedPointer<QOpenGLContext> context_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_;
-
-  QScopedPointer<QSGTexture> texture_;
 
   QQuickItem* item_;
 
@@ -60,6 +61,7 @@ public:
 
   Q_INVOKABLE void work()
   {
+    Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
     QSize size;
 
     {
@@ -80,8 +82,8 @@ public:
       }
 
       Q_ASSERT(fbo_->isValid());
-
       fbo_->bind();
+
       //context_->functions()->glViewport(0, 0, size.width(), size.height());
 
 /*
@@ -109,15 +111,14 @@ public:
 
     context_->functions()->glFinish();
 
-    {
-      QMutexLocker m(&mutex_);
+    texture_.reset(
+      item_->window()->createTextureFromId(fbo_->takeTexture(),
+        size,
+        QQuickWindow::TextureOwnsGLTexture
+      )
+    );
 
-      texture_.reset(item_->window()->createTextureFromId(fbo_->takeTexture(),
-          size,
-          QQuickWindow::TextureOwnsGLTexture
-        )
-      );
-    }
+    workFinished_.store(true, std::memory_order_relaxed);
   }
 };
 
@@ -165,8 +166,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   }
 
   {
-    QMutexLocker l(&node->mutex_);
-
     if (!node->context_)
     {
       auto const ccontext(w->openglContext());
@@ -203,10 +202,11 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else if (node->texture_)
+    else if (node->workFinished_.load(std::memory_order_relaxed))
     {
       if (br == node->rect())
       {
+        node->workFinished_.store(false, std::memory_order_relaxed);
         node->setTexture(node->texture_.take());
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);

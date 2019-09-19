@@ -10,7 +10,7 @@ class FBOWorker : public QQuickItem
 
   Q_PROPERTY(QSurfaceFormat::OpenGLContextProfile contextProfile READ contextProfile WRITE setContextProfile NOTIFY contextProfileChanged)
 
-QSurfaceFormat::OpenGLContextProfile contextProfile_{QSurfaceFormat::CompatibilityProfile};
+  QSurfaceFormat::OpenGLContextProfile contextProfile_{QSurfaceFormat::CompatibilityProfile};
 
 public:
   explicit FBOWorker(QQuickItem* = nullptr);

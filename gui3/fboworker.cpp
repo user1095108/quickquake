@@ -8,10 +8,9 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
 
   Q_OBJECT
 
-  QMutex mutex_;
+  std::atomic<bool> workFinished_{};
 
-  QScopedPointer<QOpenGLContext> context_;
-  QOffscreenSurface surface_;
+  unsigned char i_{};
 
   struct
   {
@@ -25,8 +24,10 @@ class TextureNode : public QThread, public QSGSimpleTextureNode
     }
   } fbo_[2];
 
-  unsigned char i_{};
-  std::atomic<bool> workFinished_{};
+  QMutex mutex_;
+
+  QScopedPointer<QOpenGLContext> context_;
+  QOffscreenSurface surface_;
 
   QQuickItem* item_;
 
@@ -73,12 +74,12 @@ public:
 
   Q_INVOKABLE void work()
   {
+    Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
     QSize size;
 
     {
       QMutexLocker m(&mutex_);
 
-      Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
       i_ = (i_ + 1) % 2;
 
       size = (item_->size() *
@@ -160,62 +161,57 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       node, &TextureNode::shutdown, Qt::DirectConnection);
   }
 
+  if (!node->context_)
   {
-    QMutexLocker l(&node->mutex_);
+    auto const ccontext(w->openglContext());
+    Q_ASSERT(ccontext);
 
-    if (!node->context_)
+    // this is done to safely share context resources
+    ccontext->doneCurrent();
+
+    auto f(ccontext->format());
+    f.setProfile(contextProfile_);
+
     {
-      auto const ccontext(w->openglContext());
-      Q_ASSERT(ccontext);
+      node->context_.reset(new QOpenGLContext);
+      auto& context(*node->context_);
 
-      // this is done to safely share context resources
-      ccontext->doneCurrent();
+      context.setFormat(f);
+      context.setShareContext(ccontext);
+      context.create();
+      Q_ASSERT(context.isValid());
 
-      auto f(ccontext->format());
-      f.setProfile(contextProfile_);
+      auto& surface(node->surface_);
 
-      {
-        node->context_.reset(new QOpenGLContext);
-        auto& context(*node->context_);
+      surface.setFormat(f);
+      surface.create();
+      Q_ASSERT(surface.isValid());
+    }
 
-        context.setFormat(f);
-        context.setShareContext(ccontext);
-        context.create();
-        Q_ASSERT(context.isValid());
+    ccontext->makeCurrent(w);
 
-        auto& surface(node->surface_);
+    connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
+      node, &TextureNode::shutdown, Qt::DirectConnection);
 
-        surface.setFormat(f);
-        surface.create();
-        Q_ASSERT(surface.isValid());
-      }
+    node->start();
 
-      ccontext->makeCurrent(w);
+    QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+  }
+  else if (node->workFinished_.load(std::memory_order_relaxed))
+  {
+    // if work is finished then contents of node->fbo_[node->i_] are valid
+    Q_ASSERT(node->fbo_[node->i_].fbo);
 
-      connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-        node, &TextureNode::shutdown, Qt::DirectConnection);
-
-      node->start();
+    if (node->rect() == br)
+    {
+      node->workFinished_.store(false, std::memory_order_relaxed);
+      node->setTexture(node->fbo_[node->i_].texture.get());
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else if (node->workFinished_.load(std::memory_order_relaxed))
+    else
     {
-      Q_ASSERT(node->fbo_[node->i_].fbo);
-
-      if (node->rect() == br)
-      {
-        // if work is finished then contents of node->fbo_[node->i_] are valid
-        node->workFinished_.store(false, std::memory_order_relaxed);
-
-        node->setTexture(node->fbo_[node->i_].texture.get());
-
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
-      else
-      {
-        node->setRect(br);
-      }
+      node->setRect(br);
     }
   }
 

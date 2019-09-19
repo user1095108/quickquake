@@ -10,13 +10,11 @@ Item {
   id: rootitem
 
   FBOWorker {
-    property real a: 1
-
-    width: a * parent.width
-    height: a * parent.height
+    width: aslider.value * parent.width
+    height: aslider.value * parent.height
 
     x: .5 * (parent.width - width) - xslider.value
-    y: .5 * (parent.height - height) - yslider.value
+    y: .5 * (parent.height - height)
 
     rotation: rotslider.value
 
@@ -43,26 +41,26 @@ Item {
     }
 
     Slider{
+      id: aslider
+
+      Layout.alignment: Qt.AlignCenter
+      Layout.fillHeight: true
+
+      orientation: Qt.Vertical
+
+      from: .1
+      to: 1
+
+      stepSize: .05
+
+      value: 1
+    }
+
+    Slider{
       id: xslider
 
       Layout.alignment: Qt.AlignCenter
       Layout.preferredHeight: parent.height / 3
-
-      orientation: Qt.Vertical
-
-      from: -50
-      to: 50
-
-      stepSize: 1
-
-      value: 0
-    }
-
-    Slider{
-      id: yslider
-
-      Layout.alignment: Qt.AlignCenter
-      Layout.fillHeight: true
 
       orientation: Qt.Vertical
 
