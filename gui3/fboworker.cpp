@@ -64,30 +64,27 @@ public:
   Q_INVOKABLE void work()
   {
     Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
-    QSize size;
 
+    auto const size((item_->size() *
+      item_->window()->effectiveDevicePixelRatio()).toSize());
+    Q_ASSERT(!size.isEmpty());
+
+    context_->makeCurrent(&surface_);
+
+    auto& fbo(fbo_[i_ = (i_ + 1) % 2]);
+
+    if (!fbo.fbo || (fbo.fbo->size() != size))
     {
-      i_ = (i_ + 1) % 2;
+      QOpenGLFramebufferObjectFormat format;
+      format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-      size = (item_->size() *
-        item_->window()->effectiveDevicePixelRatio()).toSize();
-      Q_ASSERT(!size.isEmpty());
-
-      context_->makeCurrent(&surface_);
-
-      if (auto& fbo(fbo_[i_]); !fbo.fbo || (fbo.fbo->size() != size))
-      {
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::Depth);
-
-        fbo.fbo.reset(new QOpenGLFramebufferObject(size, format));
-        fbo.texture.reset(item_->window()->
-          createTextureFromId(fbo.fbo->texture(), size));
-      }
-
-      Q_ASSERT(fbo_[i_].fbo->isValid());
-      fbo_[i_].fbo->bind();
+      fbo.fbo.reset(new QOpenGLFramebufferObject(size, format));
+      fbo.texture.reset(item_->window()->
+        createTextureFromId(fbo.fbo->texture(), size));
     }
+
+    Q_ASSERT(fbo.fbo->isValid());
+    fbo.fbo->bind();
 
     {
       QQmlListReference const ref(item_, "resources");

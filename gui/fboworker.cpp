@@ -52,40 +52,37 @@ public:
   Q_INVOKABLE void work()
   {
     Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
-    QSize size;
 
+    auto const size((item_->size() *
+      item_->window()->effectiveDevicePixelRatio()).toSize());
+    Q_ASSERT(!size.isEmpty());
+
+    context_->makeCurrent(&surface_);
+
+    if (!fbo_ || (fbo_->size() != size))
     {
-      size = (item_->size() *
-        item_->window()->effectiveDevicePixelRatio()).toSize();
-      Q_ASSERT(!size.isEmpty());
+      QOpenGLFramebufferObjectFormat format;
+      format.setAttachment(QOpenGLFramebufferObject::Depth);
 
-      context_->makeCurrent(&surface_);
+      fbo_.reset(new QOpenGLFramebufferObject(size, format));
+    }
 
-      if (!fbo_ || (fbo_->size() != size))
-      {
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::Depth);
+    Q_ASSERT(fbo_->isValid());
+    fbo_->bind();
 
-        fbo_.reset(new QOpenGLFramebufferObject(size, format));
-      }
-
-      Q_ASSERT(fbo_->isValid());
-      fbo_->bind();
-
-      //context_->functions()->glViewport(0, 0, size.width(), size.height());
+    //context_->functions()->glViewport(0, 0, size.width(), size.height());
 
 /*
-      {
-        QOpenGLPaintDevice opd(size);
-        QPainter painter(&opd);
+    {
+      QOpenGLPaintDevice opd(size);
+      QPainter painter(&opd);
 
-        painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
+      painter.fillRect(0, 0, size.width(), size.height(), Qt::yellow);
 
-        painter.setPen(Qt::red);
-        painter.drawLine(0, 0, size.width(), size.height());
-      }
-*/
+      painter.setPen(Qt::red);
+      painter.drawLine(0, 0, size.width(), size.height());
     }
+*/
 
     {
       QQmlListReference const ref(item_, "resources");
