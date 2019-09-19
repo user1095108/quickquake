@@ -126,7 +126,8 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
       {
         update();
       }
-    }
+    },
+    Qt::DirectConnection
   );
 }
 
