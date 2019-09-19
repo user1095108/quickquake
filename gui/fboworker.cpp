@@ -109,7 +109,7 @@ public:
       }
     }
 
-    context_->functions()->glFinish();
+    //context_->functions()->glFinish();
 
     texture_.reset(
       item_->window()->createTextureFromId(fbo_->takeTexture(),
