@@ -182,19 +182,19 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
   }
-  else if (node->workFinished_.load(std::memory_order_relaxed))
+  else if (node->rect() == br)
   {
-    if (node->rect() == br)
+    if (node->workFinished_.load(std::memory_order_relaxed))
     {
       node->workFinished_.store(false, std::memory_order_relaxed);
       node->setTexture(node->fbo_[node->i_].texture.get());
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else
-    {
-      node->setRect(br);
-    }
+  }
+  else
+  {
+    node->setRect(br);
   }
 
   update();
