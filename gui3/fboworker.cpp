@@ -57,6 +57,8 @@ public:
 
         fbo_[0].reset();
         fbo_[1].reset();
+
+        workFinished_.store(false, std::memory_order_relaxed);
       }
     }
   }
@@ -68,8 +70,13 @@ public:
       exit();
       wait();
 
-      fbo_[0].reset();
-      fbo_[1].reset();
+      if (context_)
+      {
+        fbo_[0].reset();
+        fbo_[1].reset();
+
+        workFinished_.store(false, std::memory_order_relaxed);
+      }
     }
   }
 
@@ -210,10 +217,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
 
-        if (auto& fbo(node->fbo_[node->i_]); fbo.texture)
-        {
-          node->setTexture(fbo.texture.get());
-        }
+        node->setTexture(node->fbo_[node->i_].texture.get());
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }

@@ -45,6 +45,9 @@ public:
         surface_.destroy();
 
         fbo_.reset();
+        texture_.reset();
+
+        workFinished_.store(false, std::memory_order_relaxed);
       }
     }
   }
@@ -57,13 +60,14 @@ public:
       wait();
 
       fbo_.reset();
+      texture_.reset();
+
+      workFinished_.store(false, std::memory_order_relaxed);
     }
   }
 
   Q_INVOKABLE void work()
   {
-    Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
-
     auto const size((item_->size() *
       item_->window()->effectiveDevicePixelRatio()).toSize());
     Q_ASSERT(!size.isEmpty());
@@ -128,18 +132,6 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
   QQuickItem(parent)
 {
   setFlag(ItemHasContents);
-
-  connect(this, &QQuickItem::visibleChanged,
-    this,
-    [&]()
-    {
-      if (isVisible())
-      {
-        update();
-      }
-    },
-    Qt::DirectConnection
-  );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -172,6 +164,15 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (!node)
     {
       node = new TextureNode(this);
+
+      connect(this, &QQuickItem::visibleChanged,
+        node,
+        [this, node]()
+        {
+          isVisible() ? update() : node->suspend();
+        },
+        Qt::DirectConnection
+      );
 
       connect(w, &QQuickWindow::sceneGraphInvalidated,
         node, &TextureNode::shutdown, Qt::DirectConnection);
@@ -218,6 +219,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       if (node->workFinished_.load(std::memory_order_relaxed))
       {
         node->workFinished_.store(false, std::memory_order_relaxed);
+
         node->setTexture(node->texture_.take());
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
