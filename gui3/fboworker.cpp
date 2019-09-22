@@ -73,7 +73,6 @@ public:
     }
   }
 
-
   Q_INVOKABLE void work()
   {
     auto const size((item_->size() *

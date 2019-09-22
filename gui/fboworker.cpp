@@ -49,6 +49,17 @@ public:
     }
   }
 
+  void suspend() noexcept
+  {
+    if (isRunning())
+    {
+      exit();
+      wait();
+
+      fbo_.reset();
+    }
+  }
+
   Q_INVOKABLE void work()
   {
     Q_ASSERT(!workFinished_.load(std::memory_order_relaxed));
