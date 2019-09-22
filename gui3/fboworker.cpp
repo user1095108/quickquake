@@ -70,13 +70,10 @@ public:
       exit();
       wait();
 
-      if (context_)
-      {
-        fbo_[0].reset();
-        fbo_[1].reset();
+      fbo_[0].reset();
+      fbo_[1].reset();
 
-        workFinished_.store(false, std::memory_order_relaxed);
-      }
+      workFinished_.store(false, std::memory_order_relaxed);
     }
   }
 

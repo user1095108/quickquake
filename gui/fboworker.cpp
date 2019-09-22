@@ -59,13 +59,10 @@ public:
       exit();
       wait();
 
-      if (context_)
-      {
-        fbo_.reset();
-        texture_.reset();
+      fbo_.reset();
+      texture_.reset();
 
-        workFinished_.store(false, std::memory_order_relaxed);
-      }
+      workFinished_.store(false, std::memory_order_relaxed);
     }
   }
 
