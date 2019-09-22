@@ -125,7 +125,7 @@ public:
 
     if (item_->isVisible())
     {
-      QMetaObject::invokeMethod(item_, "update", Qt::QueuedConnection);
+      QMetaObject::invokeMethod(item_, "update", Qt::AutoConnection);
     }
   }
 };
