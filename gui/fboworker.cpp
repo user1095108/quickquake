@@ -233,7 +233,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     }
     else
     {
-      qDebug() << 4;
       node->setRect(br);
 
       if (isVisible())
