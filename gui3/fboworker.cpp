@@ -112,12 +112,12 @@ public:
       }
     }
 
-    context_->functions()->glFlush();
-
     workFinished_.store(true, std::memory_order_relaxed);
 
     if (item_->isVisible())
     {
+      context_->functions()->glFlush();
+
       QMetaObject::invokeMethod(item_, "update", Qt::AutoConnection);
     }
   }
