@@ -173,10 +173,16 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         {
           if (isVisible())
           {
-            Q_ASSERT(!node->isRunning());
-            node->start();
+            if (!node->isRunning())
+            {
+              node->start();
 
-            QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+              QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+            }
+            else
+            {
+              update();
+            }
           }
           else
           {
@@ -187,7 +193,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       );
 
       connect(w, &QQuickWindow::sceneGraphInvalidated,
-        node, &TextureNode::shutdown, Qt::DirectConnection);
+        node, &TextureNode::suspend, Qt::DirectConnection);
     }
 
     if (!node->context_)
@@ -220,7 +226,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       ccontext->makeCurrent(w);
 
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-        node, &TextureNode::shutdown, Qt::DirectConnection);
+        node, &TextureNode::suspend, Qt::DirectConnection);
 
       node->start();
 
