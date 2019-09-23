@@ -159,6 +159,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     {
       node = new TextureNode(this);
 
+      node->setRect(br);
+
       connect(this, &QQuickItem::visibleChanged,
         node,
         [this, node]()
@@ -218,7 +220,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }
-      else if (!node->isRunning())
+      else if (isVisible() && !node->isRunning())
       {
         node->start();
 
