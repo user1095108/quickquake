@@ -59,8 +59,6 @@ public:
       exit();
       wait();
 
-      setTexture(item_->window()->createTextureFromId(0, QSize()));
-
       fbo_.reset();
       texture_.reset();
 
