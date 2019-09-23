@@ -178,8 +178,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
               node->start();
 
               QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-
-              update();
             }
           }
           else
