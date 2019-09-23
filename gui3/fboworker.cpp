@@ -70,6 +70,8 @@ public:
       exit();
       wait();
 
+      setTexture(item_->window()->createTextureFromId(0, QSize()));
+
       fbo_[0].reset();
       fbo_[1].reset();
 
@@ -165,7 +167,21 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         node,
         [this, node]()
         {
-          isVisible() ? update() : node->suspend();
+          if (isVisible())
+          {
+            if (!node->isRunning())
+            {
+              node->start();
+
+              QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
+
+              update();
+            }
+          }
+          else
+          {
+            node->suspend();
+          }
         },
         Qt::DirectConnection
       );
@@ -217,12 +233,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         node->workFinished_.store(false, std::memory_order_relaxed);
 
         node->setTexture(node->fbo_[node->i_].texture.get());
-
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
-      else if (isVisible() && !node->isRunning())
-      {
-        node->start();
 
         QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
       }
