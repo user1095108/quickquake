@@ -81,13 +81,13 @@ public:
 
   Q_INVOKABLE void work()
   {
-    auto const size((item_->size() *
-      item_->window()->effectiveDevicePixelRatio()).toSize());
-    Q_ASSERT(!size.isEmpty());
-
     context_->makeCurrent(&surface_);
 
     auto& fbo(fbo_[i_ = (i_ + 1) % 2]);
+
+    auto const size((item_->size() *
+      item_->window()->effectiveDevicePixelRatio()).toSize());
+    Q_ASSERT(!size.isEmpty());
 
     if (!fbo.fbo || (fbo.fbo->size() != size))
     {
