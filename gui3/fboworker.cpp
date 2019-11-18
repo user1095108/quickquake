@@ -50,16 +50,13 @@ public:
       exit();
       wait();
 
-      if (context_)
-      {
-        context_.reset();
-        surface_.destroy();
+      workFinished_.store(false, std::memory_order_relaxed);
 
-        fbo_[0].reset();
-        fbo_[1].reset();
+      fbo_[0].reset();
+      fbo_[1].reset();
 
-        workFinished_.store(false, std::memory_order_relaxed);
-      }
+      context_.reset();
+      surface_.destroy();
     }
   }
 
@@ -70,12 +67,12 @@ public:
       exit();
       wait();
 
+      workFinished_.store(false, std::memory_order_relaxed);
+
       setTexture(item_->window()->createTextureFromId(0, QSize()));
 
       fbo_[0].reset();
       fbo_[1].reset();
-
-      workFinished_.store(false, std::memory_order_relaxed);
     }
   }
 

@@ -39,16 +39,13 @@ public:
       exit();
       wait();
 
-      if (context_)
-      {
-        context_.reset();
-        surface_.destroy();
+      workFinished_.store(false, std::memory_order_relaxed);
 
-        fbo_.reset();
-        texture_.reset();
+      context_.reset();
+      surface_.destroy();
 
-        workFinished_.store(false, std::memory_order_relaxed);
-      }
+      fbo_.reset();
+      texture_.reset();
     }
   }
 
@@ -59,10 +56,10 @@ public:
       exit();
       wait();
 
+      workFinished_.store(false, std::memory_order_relaxed);
+
       fbo_.reset();
       texture_.reset();
-
-      workFinished_.store(false, std::memory_order_relaxed);
     }
   }
 
