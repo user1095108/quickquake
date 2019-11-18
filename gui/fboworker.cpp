@@ -194,10 +194,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         node, &TextureNode::shutdown,
         Qt::DirectConnection
       );
-    }
 
-    if (!node->context_)
-    {
+      Q_ASSERT(!node->context_);
+
       auto const ccontext(w->openglContext());
       Q_ASSERT(ccontext);
 
