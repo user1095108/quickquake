@@ -191,7 +191,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       );
 
       connect(w, &QQuickWindow::sceneGraphInvalidated,
-        node, &TextureNode::shutdown,
+        node, &TextureNode::suspend,
         Qt::DirectConnection
       );
 
@@ -225,7 +225,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       ccontext->makeCurrent(w);
 
       connect(ccontext, &QOpenGLContext::aboutToBeDestroyed,
-        node, &TextureNode::shutdown,
+        node, &TextureNode::suspend,
         Qt::DirectConnection
       );
 
