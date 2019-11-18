@@ -186,13 +186,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       );
 
       connect(w, &QQuickWindow::sceneGraphInitialized,
-        node,
-        [&]()
-        {
-          Q_ASSERT(!node->context_);
-          Q_ASSERT(!node->isRunning());
-          update();
-        },
+        node, [&]() { update(); },
         Qt::DirectConnection
       );
 
