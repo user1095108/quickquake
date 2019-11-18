@@ -34,8 +34,6 @@ public:
   {
     setFiltering(QSGTexture::Nearest);
     setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-
-    setTexture(item_->window()->createTextureFromId(0, QSize()));
   }
 
   ~TextureNode() noexcept
@@ -68,8 +66,6 @@ public:
       wait();
 
       workFinished_.store(false, std::memory_order_relaxed);
-
-      setTexture(item_->window()->createTextureFromId(0, QSize()));
 
       fbo_[0].reset();
       fbo_[1].reset();
@@ -157,7 +153,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (!node)
     {
       node = new TextureNode(this);
-      node->setRect(br);
+      node->setTexture(window()->createTextureFromId(0, QSize()));
 
       connect(this, &QQuickItem::visibleChanged,
         node,
