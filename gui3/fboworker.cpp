@@ -145,13 +145,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   }
   else
   {
-    auto const w(window());
-    Q_ASSERT(w);
-
     auto node(static_cast<TextureNode*>(n));
 
-    if (!node)
+    if (auto const w(window()); !node)
     {
+      Q_ASSERT(w);
+
       node = new TextureNode(this);
       node->setTexture(w->createTextureFromId(0, QSize()));
 
