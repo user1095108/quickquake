@@ -153,7 +153,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (!node)
     {
       node = new TextureNode(this);
-      node->setTexture(window()->createTextureFromId(0, QSize()));
+      node->setTexture(w->createTextureFromId(0, QSize()));
 
       connect(this, &QQuickItem::visibleChanged,
         node,
