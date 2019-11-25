@@ -182,10 +182,9 @@ void Sys_Quit (void)
 double Sys_FloatTime (void)
 {
   struct timeval tp;
-  struct timezone tzp; 
   static int      secbase; 
 
-  gettimeofday(&tp, &tzp);  
+  gettimeofday(&tp, NULL);  
 
   if (!secbase)
   {
@@ -264,22 +263,13 @@ void Sys_RenderFrame()
   newtime = Sys_FloatTime ();
   time = newtime - oldtime;
 
-  if (cls.state == ca_dedicated)
-  {
-    if (time < sys_ticrate.value && (vcrFile == -1 || recording) )
-    {
-      return;
-    }
-
-    time = sys_ticrate.value;
-  }
-
   if (time > sys_ticrate.value*2)
     oldtime = newtime;
   else
     oldtime += time;
 
   vid.recalc_refdef = true;
+
   Host_Frame (time);
 }
 
