@@ -263,10 +263,7 @@ void Sys_RenderFrame()
   newtime = Sys_FloatTime ();
   time = newtime - oldtime;
 
-  if (time > sys_ticrate.value*2)
-    oldtime = newtime;
-  else
-    oldtime += time;
+  oldtime = newtime;
 
   vid.recalc_refdef = true;
 
