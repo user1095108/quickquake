@@ -152,6 +152,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       Q_ASSERT(w);
 
       node = new TextureNode(this);
+
+      node->setRect(br);
       node->setTexture(w->createTextureFromId(0, QSize()));
 
       connect(this, &QQuickItem::visibleChanged,
@@ -222,25 +224,18 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
-    else if (node->rect() == br)
-    {
-      if (node->workFinished_.load(std::memory_order_relaxed))
-      {
-        node->workFinished_.store(false, std::memory_order_relaxed);
-
-        node->setTexture(node->fbo_[node->i_].texture.get());
-
-        QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
-      }
-    }
-    else
+    else if (node->rect() != br)
     {
       node->setRect(br);
+    }
 
-      if (isVisible())
-      {
-        update();
-      }
+    if (node->workFinished_.load(std::memory_order_relaxed))
+    {
+      node->workFinished_.store(false, std::memory_order_relaxed);
+
+      node->setTexture(node->fbo_[node->i_].texture.get());
+
+      QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
 
     return node;
