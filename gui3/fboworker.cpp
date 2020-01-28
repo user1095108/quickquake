@@ -101,10 +101,6 @@ public:
 
       QMetaObject::invokeMethod(item_, "update", Qt::AutoConnection);
     }
-    else
-    {
-      suspend();
-    }
   }
 };
 
@@ -148,6 +144,18 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       node->setRect(br);
       node->setTexture(w->createTextureFromId(0, QSize()));
+
+      connect(this, &QQuickItem::visibleChanged,
+        node,
+        [this]()
+        {
+          if (isVisible())
+          {
+            QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+          }
+        },
+        Qt::AutoConnection
+      );
 
       connect(w, &QQuickWindow::sceneGraphInitialized,
         node, [&]() { update(); },
