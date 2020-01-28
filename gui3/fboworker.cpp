@@ -147,14 +147,14 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       connect(this, &QQuickItem::visibleChanged,
         node,
-        [this]()
+        [this, node]()
         {
           if (isVisible())
           {
-            QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
           }
         },
-        Qt::AutoConnection
+        Qt::DirectConnection
       );
 
       connect(w, &QQuickWindow::sceneGraphInitialized,
