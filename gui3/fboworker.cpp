@@ -2,7 +2,7 @@
 
 #include "fboworker.hpp"
 
-class TextureNode : public QThread, public QSGSimpleTextureNode
+class TextureNode : public QObject, public QSGSimpleTextureNode
 {
   friend class FBOWorker;
 
@@ -43,38 +43,29 @@ public:
 
   void shutdown() noexcept
   {
-    if (isRunning())
-    {
-      exit();
-      wait();
+    workFinished_.store(false, std::memory_order_relaxed);
 
-      workFinished_.store(false, std::memory_order_relaxed);
+    fbo_[0].reset();
+    fbo_[1].reset();
 
-      fbo_[0].reset();
-      fbo_[1].reset();
-
-      context_.reset();
-      surface_.destroy();
-    }
+    context_.reset();
+    surface_.destroy();
   }
 
   void suspend() noexcept
   {
-    if (isRunning())
-    {
-      exit();
-      wait();
+    workFinished_.store(false, std::memory_order_relaxed);
 
-      workFinished_.store(false, std::memory_order_relaxed);
-
-      fbo_[0].reset();
-      fbo_[1].reset();
-    }
+    fbo_[0].reset();
+    fbo_[1].reset();
   }
 
   Q_INVOKABLE void work()
   {
-    context_->makeCurrent(&surface_);
+    if (QOpenGLContext::currentContext() != context_.get())
+    {
+      context_->makeCurrent(&surface_);
+    }
 
     auto& fbo(fbo_[i_ = (i_ + 1) % 2]);
 
@@ -152,6 +143,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       Q_ASSERT(w);
 
       node = new TextureNode(this);
+      node->moveToThread(QThread::currentThread());
 
       node->setRect(br);
       node->setTexture(w->createTextureFromId(0, QSize()));
@@ -162,10 +154,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         {
           if (isVisible())
           {
-            // unsuspend
-            Q_ASSERT(!node->isRunning());
-            node->start();
-
             QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
           }
           else
@@ -199,7 +187,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       {
         node->context_.reset(new QOpenGLContext);
+
         auto& context(*node->context_);
+        context.moveToThread(QThread::currentThread());
 
         context.setFormat(f);
         context.setShareContext(ccontext);
@@ -219,8 +209,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         node, &TextureNode::suspend,
         Qt::DirectConnection
       );
-
-      node->start();
 
       QMetaObject::invokeMethod(node, "work", Qt::QueuedConnection);
     }
