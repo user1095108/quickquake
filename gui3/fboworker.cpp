@@ -62,10 +62,7 @@ public:
 
   Q_INVOKABLE void work()
   {
-    if (QOpenGLContext::currentContext() != context_.get())
-    {
-      context_->makeCurrent(&surface_);
-    }
+    context_->makeCurrent(&surface_);
 
     auto& fbo(fbo_[i_ = (i_ + 1) % 2]);
 
@@ -161,7 +158,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
             node->suspend();
           }
         },
-        Qt::DirectConnection
+        Qt::AutoConnection
       );
 
       connect(w, &QQuickWindow::sceneGraphInitialized,
