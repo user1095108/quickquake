@@ -135,10 +135,10 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     }
     else
     {
+      node->setTexture(w->createTextureFromId(0, QSize()));
+
       fbo_.reset();
       texture_.reset();
-
-      node->setTexture(w->createTextureFromId(0, QSize()));
     }
 
     return node;
