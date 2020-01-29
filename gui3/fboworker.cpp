@@ -63,6 +63,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       {
         auto const ccontext(w->openglContext());
         Q_ASSERT(ccontext);
+        auto const csurface(ccontext->surface());
 
         // this is done to safely share context resources
         ccontext->doneCurrent();
@@ -84,7 +85,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
           Q_ASSERT(surface_.isValid());
         }
 
-        ccontext->makeCurrent(w);
+        ccontext->makeCurrent(csurface);
       }
     }
     else if (node->rect() != br)
@@ -99,6 +100,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (v)
     {
       auto const ccontext(w->openglContext());
+      auto const csurface(ccontext->surface());
+
       context_->makeCurrent(&surface_);
 
       auto const size((this->size() *
@@ -111,12 +114,11 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         format.setAttachment(QOpenGLFramebufferObject::Depth);
 
         fbo_.reset(new QOpenGLFramebufferObject(size, format));
-        texture_.reset(w->createTextureFromId(fbo_->texture(), size));
-
-        node->setTexture(texture_.get());
-
         Q_ASSERT(fbo_->isValid());
         fbo_->bind();
+
+        texture_.reset(w->createTextureFromId(fbo_->texture(), size));
+        node->setTexture(texture_.get());
       }
 
       {
@@ -129,7 +131,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         }
       }
 
-      ccontext->makeCurrent(w);
+      ccontext->makeCurrent(csurface);
 
       update();
     }
