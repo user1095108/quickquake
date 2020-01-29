@@ -97,6 +97,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
     if (isVisible())
     {
+      update();
+
       auto const ccontext(w->openglContext());
       auto const csurface(ccontext->surface());
 
@@ -130,8 +132,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       }
 
       ccontext->makeCurrent(csurface);
-
-      update();
     }
     else
     {
