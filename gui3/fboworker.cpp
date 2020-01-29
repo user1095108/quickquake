@@ -109,7 +109,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         format.setAttachment(QOpenGLFramebufferObject::Depth);
 
         fbo_.reset(new QOpenGLFramebufferObject(size, format));
-        Q_ASSERT(fbo_->isValid());
         fbo_->bind();
 
         texture_.reset(w->createTextureFromId(fbo_->texture(), size));
