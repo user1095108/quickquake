@@ -46,6 +46,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     auto const w(window());
     Q_ASSERT(w);
 
+    auto const ccontext(w->openglContext());
+    auto const csurface(ccontext->surface());
+
     auto node(static_cast<QSGSimpleTextureNode*>(n));
 
     if (!node)
@@ -59,10 +62,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
       node->setTexture(w->createTextureFromId(0, QSize()));
 
       {
-        auto const ccontext(w->openglContext());
-        Q_ASSERT(ccontext);
-        auto const csurface(ccontext->surface());
-
         // this is done to safely share context resources
         ccontext->doneCurrent();
 
@@ -98,9 +97,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     if (isVisible())
     {
       update();
-
-      auto const ccontext(w->openglContext());
-      auto const csurface(ccontext->surface());
 
       context_->makeCurrent(&surface_);
 
