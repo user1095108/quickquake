@@ -68,16 +68,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         auto f(ccontext->format());
         f.setProfile(contextProfile_);
 
-        {
-          context_.setFormat(f);
-          context_.setShareContext(ccontext);
-          context_.create();
-          Q_ASSERT(context_.isValid());
+        context_.setFormat(f);
+        context_.setShareContext(ccontext);
+        context_.create();
 
-          surface_.setFormat(f);
-          surface_.create();
-          Q_ASSERT(surface_.isValid());
-        }
+        surface_.setFormat(f);
+        surface_.create();
 
         ccontext->makeCurrent(csurface);
       }
