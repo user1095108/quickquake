@@ -102,7 +102,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
 
       auto const size((this->size() *
         w->effectiveDevicePixelRatio()).toSize());
-      Q_ASSERT(!size.isEmpty());
 
       if (!fbo_ || (fbo_->size() != size))
       {
