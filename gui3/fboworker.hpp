@@ -10,7 +10,7 @@ class FBOWorker : public QQuickItem
 
   Q_PROPERTY(QSurfaceFormat::OpenGLContextProfile contextProfile READ contextProfile WRITE setContextProfile NOTIFY contextProfileChanged)
 
-  QOpenGLContext context_;
+  QScopedPointer<QOpenGLContext> context_;
   QOffscreenSurface surface_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_;
