@@ -43,8 +43,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
   }
   else
   {
-    auto const v(isVisible());
-
     auto const w(window());
     Q_ASSERT(w);
 
@@ -92,12 +90,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     {
       node->setRect(br);
     }
-    else if (v)
+    else
     {
       node->markDirty(QSGNode::DirtyMaterial);
     }
 
-    if (v)
+    if (isVisible())
     {
       auto const ccontext(w->openglContext());
       auto const csurface(ccontext->surface());
