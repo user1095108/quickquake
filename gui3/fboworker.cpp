@@ -53,12 +53,11 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     {
       node = new QSGSimpleTextureNode;
       node->setFiltering(QSGTexture::Nearest);
-      node->setTextureCoordinatesTransform(
-        QSGSimpleTextureNode::MirrorVertically);
-
       node->setOwnsTexture(true);
       node->setRect(br);
       node->setTexture(w->createTextureFromId(0, {}));
+      node->setTextureCoordinatesTransform(
+        QSGSimpleTextureNode::MirrorVertically);
 
       {
         // this is done to safely share context resources
