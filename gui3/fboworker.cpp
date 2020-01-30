@@ -32,7 +32,7 @@ void FBOWorker::setContextProfile(
 }
 
 //////////////////////////////////////////////////////////////////////////////
-QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
+QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
   QQuickItem::UpdatePaintNodeData*)
 {
   if (auto const br(boundingRect()); br.isEmpty())
