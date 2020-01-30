@@ -14,7 +14,6 @@ class FBOWorker : public QQuickItem
   QOffscreenSurface surface_;
 
   QScopedPointer<QOpenGLFramebufferObject> fbo_;
-  QScopedPointer<QSGTexture> texture_;
 
   QSurfaceFormat::OpenGLContextProfile contextProfile_{QSurfaceFormat::CompatibilityProfile};
 

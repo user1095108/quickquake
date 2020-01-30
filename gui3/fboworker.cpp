@@ -56,6 +56,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
       node->setTextureCoordinatesTransform(
         QSGSimpleTextureNode::MirrorVertically);
 
+      node->setOwnsTexture(true);
       node->setRect(br);
       node->setTexture(w->createTextureFromId(0, QSize()));
 
@@ -102,8 +103,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         fbo_.reset(new QOpenGLFramebufferObject(size, format));
         fbo_->bind();
 
-        texture_.reset(w->createTextureFromId(fbo_->texture(), size));
-        node->setTexture(texture_.get());
+        node->setTexture(w->createTextureFromId(fbo_->texture(), size));
       }
 
       {
@@ -120,10 +120,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     }
     else
     {
-      node->setTexture(w->createTextureFromId(0, QSize()));
-
       fbo_.reset();
-      texture_.reset();
+
+      node->setTexture(w->createTextureFromId(0, QSize()));
     }
 
     return node;
