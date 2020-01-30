@@ -58,7 +58,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
       node->setOwnsTexture(true);
       node->setRect(br);
-      node->setTexture(w->createTextureFromId(0, QSize()));
+      node->setTexture(w->createTextureFromId(0, {}));
 
       {
         // this is done to safely share context resources
@@ -122,7 +122,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     {
       fbo_.reset();
 
-      node->setTexture(w->createTextureFromId(0, QSize()));
+      node->setTexture(w->createTextureFromId(0, {}));
     }
 
     return node;
