@@ -68,12 +68,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
         auto f(ccontext->format());
         f.setProfile(contextProfile_);
 
-        context_.reset(new QOpenGLContext);
-        auto& context(*context_);
-
-        context.setFormat(f);
-        context.setShareContext(ccontext);
-        context.create();
+        context_.setFormat(f);
+        context_.setShareContext(ccontext);
+        context_.create();
 
         surface_.setFormat(f);
         surface_.create();
@@ -94,7 +91,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* const n,
     {
       update();
 
-      context_->makeCurrent(&surface_);
+      context_.makeCurrent(&surface_);
 
       auto const size((br.size() *
         w->effectiveDevicePixelRatio()).toSize());
