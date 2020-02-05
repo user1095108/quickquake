@@ -21,12 +21,6 @@ int main(int argc, char* argv[])
   view.setColor(Qt::black);
   view.setSource(QUrl(QStringLiteral("qrc:main.qml")));
 
-  if (QQuickView::Error == view.status())
-  {
-    return EXIT_FAILURE;
-  }
-
-  view.show();
-
-  return app.exec();
+  return QQuickView::Error == view.status() ?
+    EXIT_FAILURE : (view.show(), app.exec());
 }
