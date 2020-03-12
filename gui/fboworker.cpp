@@ -6,6 +6,8 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
 {
   setFlag(ItemHasContents);
 
+  context_.moveToThread(nullptr);
+
   connect(this, &QQuickItem::visibleChanged,
     this,
     [&]()
@@ -65,6 +67,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
         auto f(ccontext->format());
         f.setProfile(contextProfile_);
+
+        context_.moveToThread(QThread::currentThread());
 
         context_.setFormat(f);
         context_.setShareContext(ccontext);
