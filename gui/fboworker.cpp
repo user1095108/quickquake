@@ -6,7 +6,7 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
 {
   setFlag(ItemHasContents);
 
-  context_.moveToThread(nullptr);
+  context_.moveToThread({});
 
   connect(this, &QQuickItem::visibleChanged,
     this,
