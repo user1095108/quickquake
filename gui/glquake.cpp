@@ -24,7 +24,7 @@ void GLQuake::render(QSize const& size)
     QScopedArrayPointer<QByteArray> bal(new QByteArray[sl.size()]);
     QScopedArrayPointer<char*> argv(new char*[sl.size()]);
 
-    for (std::size_t i{}, e(sl.size()); i != e; ++i)
+    for (decltype(sl.size()) i{}, e(sl.size()); i != e; ++i)
     {
       bal[i] = sl[i].toUtf8();
       argv[i] = bal[i].data();
