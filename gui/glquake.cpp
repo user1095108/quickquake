@@ -97,8 +97,8 @@ extern "C"
   {
     if (kr != kw)
     {
-      auto const& p(keys[kr++]);
-      kr &= std::size(keys) - 1;
+      auto const& p(keys[kr]);
+      ++kr &= std::size(keys) - 1;
 
       int kk{-1};
 
@@ -175,8 +175,8 @@ extern "C"
 //////////////////////////////////////////////////////////////////////////////
 void GLQuake::keyEvent(int const key, bool const pressed)
 {
-  keys[kw++] = {key, pressed};
-  kw &= std::size(keys) - 1;
+  keys[kw] = {key, pressed};
+  ++kw &= std::size(keys) - 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
