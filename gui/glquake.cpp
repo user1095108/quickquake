@@ -87,7 +87,7 @@ extern "C"
   void Sys_InitParms(int argc, char **argv);
   void Sys_RenderFrame();
 
-  std::pair<int, bool> keys[256];
+  std::pair<int, bool> keys[64];
   unsigned kr{};
   unsigned kw{};
 
