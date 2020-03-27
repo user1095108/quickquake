@@ -16,11 +16,23 @@ Item {
     x: .5 * (parent.width - width) - xslider.value
     y: .5 * (parent.height - height)
 
+    focus: true
+
     rotation: rotslider.value
 
     visible: checkbox.checked
 
-    GLQuake {}
+    Keys.onPressed: {
+      quake.keyEvent(event.key, true)
+    }
+
+    Keys.onReleased: {
+      quake.keyEvent(event.key, false)
+    }
+
+    GLQuake {
+      id: quake
+    }
   }
 
   CheckBox {

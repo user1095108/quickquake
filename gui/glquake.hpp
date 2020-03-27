@@ -11,6 +11,8 @@ class GLQuake : public QObject
 public:
   using QObject::QObject;
 
+  Q_INVOKABLE void keyEvent(int, bool);
+
   Q_INVOKABLE void render(QSize const&);
 };
 
