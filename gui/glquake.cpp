@@ -95,7 +95,7 @@ extern "C"
 
   void Sys_SendKeyEvents()
   {
-    if (kr != kw)
+    while (kr != kw)
     {
       auto const& p(keys[kr]);
       ++kr &= std::size(keys) - 1;
