@@ -148,7 +148,8 @@ extern "C"
           kk = K_SHIFT;
           break;
 
-        case Qt::Key_AsciiTilde:
+        case Qt::Key_Dead_Tilde:
+          kk = '~';
           break;
 
         default:
