@@ -116,6 +116,10 @@ extern "C"
           kk = K_ENTER;
           break;
 
+        case Qt::Key_Backspace:
+          kk = K_BACKSPACE;
+          break;
+
         case Qt::Key_Space:
           kk = K_SPACE;
           break;
@@ -153,6 +157,10 @@ extern "C"
           break;
 
         default:
+          if ((p.first >= Qt::Key_Space) && (p.first <= Qt::Key_AsciiTilde))
+          {
+            kk = p.first;
+          }
           break;
       }
 
@@ -165,7 +173,7 @@ extern "C"
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void GLQuake::keyEvent(int const key, bool const pressed)
+void GLQuake::keyEvent(int const key, QString const& text, bool const pressed)
 {
   keys[kw++] = {key, pressed};
   kw &= std::size(keys) - 1;

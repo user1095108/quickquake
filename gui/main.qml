@@ -23,11 +23,11 @@ Item {
     visible: checkbox.checked
 
     Keys.onPressed: {
-      quake.keyEvent(event.key, true)
+      quake.keyEvent(event.key, event.text, true)
     }
 
     Keys.onReleased: {
-      quake.keyEvent(event.key, false)
+      quake.keyEvent(event.key, event.text, false)
     }
 
     GLQuake {
