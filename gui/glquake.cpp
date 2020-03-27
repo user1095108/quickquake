@@ -173,7 +173,7 @@ extern "C"
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void GLQuake::keyEvent(int const key, QString const& text, bool const pressed)
+void GLQuake::keyEvent(int const key, bool const pressed)
 {
   keys[kw++] = {key, pressed};
   kw &= std::size(keys) - 1;
