@@ -100,104 +100,7 @@ extern "C"
       auto const& p(keys[kr]);
       ++kr &= std::size(keys) - 1;
 
-      int kk{-1};
-
-      switch (p.first)
-      {
-        //
-        case Qt::Key_Tab:
-          kk = K_TAB;
-          break;
-
-        case Qt::Key_Enter:
-        case Qt::Key_Return:
-          kk = K_ENTER;
-          break;
-
-        case Qt::Key_Escape:
-          kk = K_ESCAPE;
-          break;
-
-        case Qt::Key_Space:
-          kk = K_SPACE;
-          break;
-
-        //
-        case Qt::Key_Backspace:
-          kk = K_BACKSPACE;
-          break;
-
-        case Qt::Key_Left:
-          kk = K_LEFTARROW;
-          break;
-
-        case Qt::Key_Up:
-          kk = K_UPARROW;
-          break;
-
-        case Qt::Key_Right:
-          kk = K_RIGHTARROW;
-          break;
-
-        case Qt::Key_Down:
-          kk = K_DOWNARROW;
-          break;
-
-        //
-        case Qt::Key_Alt:
-          kk = K_ALT;
-          break;
-
-        case Qt::Key_Control:
-          kk = K_CTRL;
-          break;
-
-        case Qt::Key_Shift:
-          kk = K_SHIFT;
-          break;
-
-        //
-        case Qt::Key_Insert:
-          kk = K_INS;
-          break;
-
-        case Qt::Key_Delete:
-          kk = K_DEL;
-          break;
-
-        case Qt::Key_PageDown:
-          kk = K_PGDN;
-          break;
-
-        case Qt::Key_PageUp:
-          kk = K_PGUP;
-          break;
-
-        case Qt::Key_Home:
-          kk = K_HOME;
-          break;
-
-        case Qt::Key_End:
-          kk = K_END;
-          break;
-
-        //
-        case Qt::Key_Dead_Tilde:
-          kk = '~';
-          break;
-
-        default:
-          if ((p.first >= Qt::Key_Space) && (p.first <= Qt::Key_AsciiTilde))
-          {
-            kk = p.first;
-          }
-          break;
-      }
-
-      if (-1 != kk)
-      {
-        Key_Event(kk, p.second);
-      }
+      Key_Event(p.first, p.second);
     }
   }
 }
@@ -205,8 +108,105 @@ extern "C"
 //////////////////////////////////////////////////////////////////////////////
 void GLQuake::keyEvent(int const key, bool const pressed)
 {
-  keys[kw] = {key, pressed};
-  ++kw &= std::size(keys) - 1;
+  int kk{-1};
+
+  switch (key)
+  {
+    //
+    case Qt::Key_Tab:
+      kk = K_TAB;
+      break;
+
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+      kk = K_ENTER;
+      break;
+
+    case Qt::Key_Escape:
+      kk = K_ESCAPE;
+      break;
+
+    case Qt::Key_Space:
+      kk = K_SPACE;
+      break;
+
+    //
+    case Qt::Key_Backspace:
+      kk = K_BACKSPACE;
+      break;
+
+    case Qt::Key_Left:
+      kk = K_LEFTARROW;
+      break;
+
+    case Qt::Key_Up:
+      kk = K_UPARROW;
+      break;
+
+    case Qt::Key_Right:
+      kk = K_RIGHTARROW;
+      break;
+
+    case Qt::Key_Down:
+      kk = K_DOWNARROW;
+      break;
+
+    //
+    case Qt::Key_Alt:
+      kk = K_ALT;
+      break;
+
+    case Qt::Key_Control:
+      kk = K_CTRL;
+      break;
+
+    case Qt::Key_Shift:
+      kk = K_SHIFT;
+      break;
+
+    //
+    case Qt::Key_Insert:
+      kk = K_INS;
+      break;
+
+    case Qt::Key_Delete:
+      kk = K_DEL;
+      break;
+
+    case Qt::Key_PageDown:
+      kk = K_PGDN;
+      break;
+
+    case Qt::Key_PageUp:
+      kk = K_PGUP;
+      break;
+
+    case Qt::Key_Home:
+      kk = K_HOME;
+      break;
+
+    case Qt::Key_End:
+      kk = K_END;
+      break;
+
+    //
+    case Qt::Key_Dead_Tilde:
+      kk = '~';
+      break;
+
+    default:
+      if ((key >= Qt::Key_Space) && (key <= Qt::Key_AsciiTilde))
+      {
+        kk = key;
+      }
+      break;
+  }
+
+  if (-1 != kk)
+  {
+    keys[kw] = {kk, pressed};
+    ++kw &= std::size(keys) - 1;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
