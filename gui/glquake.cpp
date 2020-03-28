@@ -104,24 +104,27 @@ extern "C"
 
       switch (p.first)
       {
-        case Qt::Key_Escape:
-          kk = K_ESCAPE;
-          break;
-
+        //
         case Qt::Key_Tab:
           kk = K_TAB;
           break;
 
+        case Qt::Key_Enter:
         case Qt::Key_Return:
           kk = K_ENTER;
           break;
 
-        case Qt::Key_Backspace:
-          kk = K_BACKSPACE;
+        case Qt::Key_Escape:
+          kk = K_ESCAPE;
           break;
 
         case Qt::Key_Space:
           kk = K_SPACE;
+          break;
+
+        //
+        case Qt::Key_Backspace:
+          kk = K_BACKSPACE;
           break;
 
         case Qt::Key_Left:
@@ -140,18 +143,45 @@ extern "C"
           kk = K_DOWNARROW;
           break;
 
-        case Qt::Key_Control:
-          kk = K_CTRL;
-          break;
-
+        //
         case Qt::Key_Alt:
           kk = K_ALT;
+          break;
+
+        case Qt::Key_Control:
+          kk = K_CTRL;
           break;
 
         case Qt::Key_Shift:
           kk = K_SHIFT;
           break;
 
+        //
+        case Qt::Key_Insert:
+          kk = K_INS;
+          break;
+
+        case Qt::Key_Delete:
+          kk = K_DEL;
+          break;
+
+        case Qt::Key_PageDown:
+          kk = K_PGDN;
+          break;
+
+        case Qt::Key_PageUp:
+          kk = K_PGUP;
+          break;
+
+        case Qt::Key_Home:
+          kk = K_HOME;
+          break;
+
+        case Qt::Key_End:
+          kk = K_END;
+          break;
+
+        //
         case Qt::Key_Dead_Tilde:
           kk = '~';
           break;
