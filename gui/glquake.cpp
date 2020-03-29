@@ -189,6 +189,21 @@ void GLQuake::keyEvent(int const key, bool const pressed)
       kk = K_END;
       break;
 
+    case Qt::Key_F1:
+    case Qt::Key_F2:
+    case Qt::Key_F3:
+    case Qt::Key_F4:
+    case Qt::Key_F5:
+    case Qt::Key_F6:
+    case Qt::Key_F7:
+    case Qt::Key_F8:
+    case Qt::Key_F9:
+    case Qt::Key_F10:
+    case Qt::Key_F11:
+    case Qt::Key_F12:
+      kk = K_F1 + (key - Qt::Key_F1);
+      break;
+
     //
     case Qt::Key_Dead_Tilde:
       kk = '~';
