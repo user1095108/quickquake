@@ -81,8 +81,8 @@
 
 extern "C"
 {
-  int scr_width;
-  int scr_height;
+  extern int scr_width;
+  extern int scr_height;
 
   void Sys_InitParms(int argc, char **argv);
   void Sys_RenderFrame();

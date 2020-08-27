@@ -5,7 +5,7 @@ TEMPLATE = lib
 CONFIG -= qt
 CONFIG += static
 
-QMAKE_CFLAGS = -Ofast -no-pie -fno-plt -fno-stack-protector
+QMAKE_CFLAGS = -O2 -fno-plt -fno-stack-protector
 
 TARGET = glquake
 
@@ -36,11 +36,11 @@ SOURCES = Quake/WinQuake/cd_null.c       \
           Quake/WinQuake/gl_refrag.c     \
           Quake/WinQuake/gl_rlight.c     \
           Quake/WinQuake/gl_rmain.c      \
-          Quake/WinQuake/gl_rmisc.c      \
-          Quake/WinQuake/gl_rsurf.c      \
-          Quake/WinQuake/gl_screen.c     \
+#         Quake/WinQuake/gl_rmisc.c      \
+#         Quake/WinQuake/gl_rsurf.c      \
+#         Quake/WinQuake/gl_screen.c     \
           Quake/WinQuake/gl_test.c       \
-          Quake/WinQuake/gl_warp.c       \
+#         Quake/WinQuake/gl_warp.c       \
           \
           Quake/WinQuake/r_part.c        \
           \
@@ -77,5 +77,6 @@ SOURCES = Quake/WinQuake/cd_null.c       \
           gl_draw.c                      \
           gl_rmisc.c                     \
           gl_rsurf.c                     \
+          gl_screen.c                    \
           gl_warp.c                      \
           sys_qt.c

@@ -18,11 +18,11 @@ win32:debug:CONFIG += console
 CONFIG(release, debug|release):QMAKE_RESOURCE_FLAGS += -compress 9
 
 *-g++* {
-  QMAKE_CFLAGS = -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt -no-pie
-  QMAKE_CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt -no-pie
+  QMAKE_CFLAGS = -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt
+  QMAKE_CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt
 
   QMAKE_CFLAGS_RELEASE *= -DNDEBUG -g
-  QMAKE_CXXFLAGS_RELEASE *= -Ofast -DQT_NO_DEBUG_OUTPUT -DNDEBUG -g
+  QMAKE_CXXFLAGS_RELEASE *= -DQT_NO_DEBUG_OUTPUT -DNDEBUG -g
 
   unix:QMAKE_CXXFLAGS_DEBUG += -fsanitize=address,undefined
   unix:QMAKE_LFLAGS_DEBUG += -fsanitize=address,undefined
