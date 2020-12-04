@@ -5,6 +5,7 @@ int main(int argc, char* argv[])
 {
   QGuiApplication app(argc, argv);
   //app.setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
+
   qputenv("QSG_RHI_BACKEND", QByteArray("opengl"));
 
   qmlRegisterType<FBOWorker>("Quake", 1, 0, "FBOWorker");
