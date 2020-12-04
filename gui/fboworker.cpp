@@ -57,9 +57,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
       node->setFiltering(QSGTexture::Nearest);
       node->setOwnsTexture(true);
       node->setRect(br);
-      GLuint id{};
-      node->setTexture(w->createTextureFromNativeObject(
-        QQuickWindow::NativeObjectTexture, &id, {}, {}));
       node->setTextureCoordinatesTransform(
         QSGSimpleTextureNode::MirrorVertically);
 
