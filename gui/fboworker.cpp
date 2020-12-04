@@ -57,7 +57,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
       node->setFiltering(QSGTexture::Nearest);
       node->setOwnsTexture(true);
       node->setRect(br);
-      node->setTexture(w->createTextureFromId(0, {}));
+      GLuint id{};
+      node->setTexture(w->createTextureFromNativeObject(
+        QQuickWindow::NativeObjectTexture, &id, {}, {}));
       node->setTextureCoordinatesTransform(
         QSGSimpleTextureNode::MirrorVertically);
 
@@ -106,7 +108,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         fbo_.reset(new QOpenGLFramebufferObject(size, format));
         fbo_->bind();
 
-        node->setTexture(w->createTextureFromId(fbo_->texture(), size));
+        auto const id(fbo_->texture());
+        node->setTexture(w->createTextureFromNativeObject(
+          QQuickWindow::NativeObjectTexture, &id, {}, size));
       }
 
       {
@@ -125,7 +129,9 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     {
       fbo_.reset();
 
-      node->setTexture(w->createTextureFromId(0, {}));
+      GLuint id{};
+      node->setTexture(w->createTextureFromNativeObject(
+        QQuickWindow::NativeObjectTexture, &id, {}, {}));
     }
 
     return node;
