@@ -99,10 +99,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
       if (!fbo_ || (fbo_->size() != size))
       {
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::Depth);
-
-        fbo_.reset(new QOpenGLFramebufferObject(size, format));
+        fbo_.reset(new QOpenGLFramebufferObject(size, QOpenGLFramebufferObject::Depth));
         fbo_->bind();
 
         auto const id(fbo_->texture());
