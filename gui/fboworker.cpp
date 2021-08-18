@@ -107,7 +107,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
         auto const id(fbo_->texture());
         node->setTexture(w->createTextureFromNativeObject(
-          QQuickWindow::NativeObjectTexture, &id, {}, size));
+          QQuickWindow::NativeObjectTexture, &id, {}, size,
+          QQuickWindow::TextureIsOpaque));
       }
 
       {
