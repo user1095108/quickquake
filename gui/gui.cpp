@@ -1,11 +1,15 @@
 #include "fboworker.hpp"
 #include "glquake.hpp"
 
+//view.setPersistentOpenGLContext(true);
+//view.setPersistentSceneGraph(true);
+
 int main(int argc, char* argv[])
 {
+  //QCoreApplication::setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
+  //QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
   QGuiApplication app(argc, argv);
-  //app.setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
-  //app.setAttribute(Qt::AA_ShareOpenGLContexts);
 
   qputenv("QSG_RHI_BACKEND", QByteArray("opengl"));
 
@@ -18,6 +22,3 @@ int main(int argc, char* argv[])
 
   return app.exec();
 }
-
-//view.setPersistentOpenGLContext(true);
-//view.setPersistentSceneGraph(true);
