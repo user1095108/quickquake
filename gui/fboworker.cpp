@@ -77,6 +77,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     {
       update();
 
+      //
       context_.makeCurrent(&surface_);
 
       auto const size((br.size() *
@@ -107,8 +108,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
           QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
             Q_ARG(QSize, size));
         }
-
-        //fbo_->toImage().save(QStringLiteral("save.png"));
       }
 
       ccontext->makeCurrent(csurface);
