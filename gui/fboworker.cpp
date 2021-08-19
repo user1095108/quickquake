@@ -88,7 +88,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
       if (!fbo_ || (fbo_->size() != size))
       {
-        fbo_.reset(new QOpenGLFramebufferObject(size, QOpenGLFramebufferObject::Depth));
+        fbo_.reset(new QOpenGLFramebufferObject(size,
+          QOpenGLFramebufferObject::Depth));
         fbo_->bind();
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
