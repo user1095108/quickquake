@@ -12,12 +12,12 @@ int main(int argc, char* argv[])
   qmlRegisterType<FBOWorker>("Quake", 1, 0, "FBOWorker");
   qmlRegisterType<GLQuake>("Quake", 1, 0, "GLQuake");
 
-//view.setPersistentOpenGLContext(true);
-//view.setPersistentSceneGraph(true);
-
   //
   QQmlApplicationEngine engine;
   engine.load(QStringLiteral("qrc:///main.qml"));
 
   return app.exec();
 }
+
+//view.setPersistentOpenGLContext(true);
+//view.setPersistentSceneGraph(true);
