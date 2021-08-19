@@ -22,18 +22,6 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void FBOWorker::setContextProfile(
-  QSurfaceFormat::OpenGLContextProfile const e)
-{
-  if (e != contextProfile_)
-  {
-    contextProfile_ = e;
-
-    emit contextProfileChanged();
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////
 QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
   QQuickItem::UpdatePaintNodeData*)
 {
@@ -61,15 +49,14 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         QSGSimpleTextureNode::MirrorVertically);
 
       {
-        // this is done to safely share context resources
-        ccontext->doneCurrent();
-
         auto f(ccontext->format());
-        f.setProfile(contextProfile_);
+        f.setProfile(QSurfaceFormat::CompatibilityProfile);
+        qDebug() << f;
 
         context_.moveToThread(QThread::currentThread());
 
         context_.setFormat(f);
+        ccontext->doneCurrent();
         context_.setShareContext(ccontext);
         context_.create();
 
