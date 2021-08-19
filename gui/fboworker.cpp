@@ -50,13 +50,12 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         QSGSimpleTextureNode::MirrorVertically);
 
       {
-        auto f(ccontext->format());
-        f.setProfile(QSurfaceFormat::CompatibilityProfile);
+        context_.moveToThread(QThread::currentThread());
+        context_.setShareContext(ccontext);
 
         //
-        context_.moveToThread(QThread::currentThread());
-
-        context_.setShareContext(ccontext);
+        auto f(ccontext->format());
+        f.setProfile(QSurfaceFormat::CompatibilityProfile);
 
         context_.setFormat(f);
         context_.create();
