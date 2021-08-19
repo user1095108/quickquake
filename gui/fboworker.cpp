@@ -56,7 +56,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         //
         context_.moveToThread(QThread::currentThread());
 
-        ccontext->doneCurrent();
         context_.setShareContext(ccontext);
 
         context_.setFormat(f);
@@ -64,8 +63,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
         surface_.setFormat(f);
         surface_.create();
-
-        ccontext->makeCurrent(csurface);
       }
     }
     else if (node->rect() != br)
