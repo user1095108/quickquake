@@ -120,7 +120,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
       node->setTexture(
-        QNativeInterface::QSGOpenGLTexture::fromNative(0, w, {}));
+        QNativeInterface::QSGOpenGLTexture::fromNative({}, w, {}));
 #else
       GLuint const id{};
       node->setTexture(w->createTextureFromNativeObject(
