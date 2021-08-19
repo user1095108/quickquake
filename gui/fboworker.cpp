@@ -103,7 +103,7 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
       {
         QQmlListReference const ref(this, "resources");
 
-        for (int i{}, c(ref.count()); i != c; ++i)
+        for (decltype(ref.count()) i{}, c(ref.count()); i != c; ++i)
         {
           QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
             Q_ARG(QSize, size));
