@@ -56,7 +56,6 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         //
         context_.moveToThread(QThread::currentThread());
 
-        //
         ccontext->doneCurrent();
         context_.setShareContext(ccontext);
 
