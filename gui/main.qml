@@ -6,8 +6,13 @@ import QtQuick.Layouts 1.13
 
 import Quake 1.0
 
-Item {
-  id: rootitem
+ApplicationWindow {
+  width: 800
+  height: 600
+
+  color: "black"
+
+  visible: true
 
   FBOWorker {
     width: aslider.value * parent.width
@@ -22,12 +27,12 @@ Item {
 
     visible: checkbox.checked
 
-    Keys.onPressed: {
-      quake.keyEvent(event.key, true)
+    Keys.onPressed: (e) => {
+      quake.keyEvent(e.key, true)
     }
 
-    Keys.onReleased: {
-      quake.keyEvent(event.key, false)
+    Keys.onReleased: (e) => {
+      quake.keyEvent(e.key, false)
     }
 
     GLQuake {

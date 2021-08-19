@@ -5,7 +5,7 @@ TEMPLATE = lib
 CONFIG -= qt
 CONFIG += static
 
-QMAKE_CFLAGS_RELEASE = -O2 -fno-plt -fno-stack-protector
+QMAKE_CFLAGS_RELEASE = -Ofast -fno-plt -fno-stack-protector
 
 TARGET = glquake
 

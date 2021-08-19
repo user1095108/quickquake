@@ -2,6 +2,8 @@
   error("")
 }
 
+CONFIG += qtquickcompiler
+
 TEMPLATE = app
 
 HEADERS = $$files(*.hpp)

@@ -22,18 +22,6 @@ FBOWorker::FBOWorker(QQuickItem* const parent) :
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void FBOWorker::setContextProfile(
-  QSurfaceFormat::OpenGLContextProfile const e)
-{
-  if (e != contextProfile_)
-  {
-    contextProfile_ = e;
-
-    emit contextProfileChanged();
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////
 QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
   QQuickItem::UpdatePaintNodeData*)
 {
@@ -46,7 +34,8 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
     auto const w(window());
     Q_ASSERT(w);
 
-    auto const ccontext(w->openglContext());
+    auto const ccontext(static_cast<QOpenGLContext*>(w->rendererInterface()->
+      getResource(w, QSGRendererInterface::OpenGLContextResource)));
     auto const csurface(ccontext->surface());
 
     auto node(static_cast<QSGSimpleTextureNode*>(n));
@@ -61,16 +50,17 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
         QSGSimpleTextureNode::MirrorVertically);
 
       {
-        // this is done to safely share context resources
-        ccontext->doneCurrent();
-
         auto f(ccontext->format());
-        f.setProfile(contextProfile_);
+        f.setProfile(QSurfaceFormat::CompatibilityProfile);
 
+        //
         context_.moveToThread(QThread::currentThread());
 
-        context_.setFormat(f);
+        //
+        ccontext->doneCurrent();
         context_.setShareContext(ccontext);
+
+        context_.setFormat(f);
         context_.create();
 
         surface_.setFormat(f);
@@ -99,15 +89,18 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
 
       if (!fbo_ || (fbo_->size() != size))
       {
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::Depth);
-
-        fbo_.reset(new QOpenGLFramebufferObject(size, format));
+        fbo_.reset(new QOpenGLFramebufferObject(size, QOpenGLFramebufferObject::Depth));
         fbo_->bind();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        node->setTexture(QNativeInterface::QSGOpenGLTexture::fromNative(
+          fbo_->texture(), w, size, QQuickWindow::TextureIsOpaque));
+#else
         auto const id(fbo_->texture());
         node->setTexture(w->createTextureFromNativeObject(
-          QQuickWindow::NativeObjectTexture, &id, {}, size));
+          QQuickWindow::NativeObjectTexture, &id, {}, size,
+          QQuickWindow::TextureIsOpaque));
+#endif // QT_VERSION
       }
 
       {
@@ -118,17 +111,24 @@ QSGNode* FBOWorker::updatePaintNode(QSGNode* n,
           QMetaObject::invokeMethod(ref.at(i), "render", Qt::DirectConnection,
             Q_ARG(QSize, size));
         }
+
+        //fbo_->toImage().save(QStringLiteral("save.png"));
       }
 
       ccontext->makeCurrent(csurface);
     }
     else
     {
-      fbo_.reset();
-
-      GLuint id{};
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+      node->setTexture(
+        QNativeInterface::QSGOpenGLTexture::fromNative(0, w, {}));
+#else
+      GLuint const id{};
       node->setTexture(w->createTextureFromNativeObject(
         QQuickWindow::NativeObjectTexture, &id, {}, {}));
+#endif // QT_VERSION
+
+      fbo_.reset();
     }
 
     return node;

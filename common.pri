@@ -4,8 +4,8 @@ MOC_DIR = .moc
 OBJECTS_DIR = .obj
 UI_DIR = .ui
 
-CONFIG += no_lflags_merge exceptions_off rtti_off stl thread warn_on
-CONFIG -= c++11 c++14 exceptions rtti
+CONFIG += no_lflags_merge exceptions_off rtti_off stl thread warn_on c++latest
+CONFIG -= exceptions rtti
 
 DEFINES +=                 \
   QT_USE_FAST_CONCATENATION\
@@ -19,10 +19,10 @@ CONFIG(release, debug|release):QMAKE_RESOURCE_FLAGS += -compress 9
 
 *-g++* {
   QMAKE_CFLAGS = -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt
-  QMAKE_CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt
+  QMAKE_CXXFLAGS = -Wall -Wextra -Wno-missing-field-initializers -Wno-multichar -fno-stack-protector -fno-plt
 
   QMAKE_CFLAGS_RELEASE *= -DNDEBUG -g
-  QMAKE_CXXFLAGS_RELEASE *= -DQT_NO_DEBUG_OUTPUT -DNDEBUG -g
+  QMAKE_CXXFLAGS_RELEASE *= -DNDEBUG -g
 
   unix:QMAKE_CXXFLAGS_DEBUG += -fsanitize=address,undefined
   unix:QMAKE_LFLAGS_DEBUG += -fsanitize=address,undefined
